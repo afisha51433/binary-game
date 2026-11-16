@@ -1,0 +1,2196 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>二進位解謎大挑戰 | Binary Escape Protocol</title>
+    <style>
+        :root {
+            --bg-dark: #0b0f19;
+            --bg-card: #131b2e;
+            --bg-panel: #0f1626;
+            --border-subtle: #23304d;
+            --neon-cyan: #00f0ff;
+            --neon-cyan-dim: rgba(0, 240, 255, 0.15);
+            --amber-gold: #ffb703;
+            --amber-dim: rgba(255, 183, 3, 0.15);
+            --emerald: #10b981;
+            --emerald-dim: rgba(16, 185, 129, 0.15);
+            --rose: #f43f5e;
+            --pink-heart: #ff2a85;
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+            background-color: var(--bg-dark);
+            background-image: 
+                radial-gradient(circle at 15% 20%, rgba(0, 240, 255, 0.06) 0%, transparent 40%),
+                radial-gradient(circle at 85% 80%, rgba(255, 183, 3, 0.06) 0%, transparent 40%);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            line-height: 1.6;
+        }
+
+        .mono {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        }
+
+        /* 頂部導覽列 */
+        header {
+            background: rgba(11, 15, 25, 0.92);
+            border-bottom: 1px solid var(--border-subtle);
+            padding: 1rem 1.25rem;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            backdrop-filter: blur(8px);
+        }
+
+        .header-inner {
+            max-width: 960px;
+            margin: 0 auto;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .brand-badge {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            background: var(--neon-cyan-dim);
+            border: 1.5px solid var(--neon-cyan);
+            color: var(--neon-cyan);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 1.1rem;
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.25);
+        }
+
+        .brand-title {
+            font-size: 1.25rem;
+            font-weight: 800;
+            letter-spacing: 0.05em;
+            background: linear-gradient(90deg, #67e8f9, #ffffff, #fcd34d);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .brand-sub {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            letter-spacing: 0.12em;
+        }
+
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        .status-pill {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            padding: 0.4rem 0.85rem;
+            border-radius: 999px;
+            font-size: 0.85rem;
+            color: var(--neon-cyan);
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .btn-icon {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            color: var(--text-main);
+            padding: 0.4rem 0.8rem;
+            border-radius: 999px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+
+        .btn-icon:hover {
+            border-color: var(--neon-cyan);
+            color: var(--neon-cyan);
+        }
+
+        /* 主容器 */
+        main {
+            flex: 1;
+            max-width: 960px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 1.5rem 1rem 3rem;
+        }
+
+        /* 關卡進度導覽列 */
+        .stage-nav {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.65rem;
+            margin-bottom: 1.75rem;
+        }
+
+        .nav-step {
+            background: var(--bg-card);
+            border: 1.5px solid var(--border-subtle);
+            border-radius: 14px;
+            padding: 0.75rem 0.85rem;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.25s;
+            color: var(--text-muted);
+            display: flex;
+            flex-direction: column;
+            gap: 0.2rem;
+        }
+
+        .nav-step.active {
+            border-color: var(--neon-cyan);
+            background: linear-gradient(135deg, rgba(0, 240, 255, 0.12), var(--bg-card));
+            color: var(--text-main);
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.12);
+        }
+
+        .nav-step.completed {
+            border-color: var(--emerald);
+            color: var(--text-main);
+        }
+
+        .nav-step.locked {
+            opacity: 0.55;
+            cursor: not-allowed;
+        }
+
+        .nav-step-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .nav-step-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+        }
+
+        /* 提示橫幅 Toast */
+        .toast-banner {
+            position: fixed;
+            bottom: 1.5rem;
+            left: 50%;
+            transform: translateX(-50%) translateY(120%);
+            background: #1e293b;
+            border: 1.5px solid var(--neon-cyan);
+            color: #fff;
+            padding: 0.85rem 1.4rem;
+            border-radius: 14px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+            z-index: 100;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            max-width: 92vw;
+            text-align: center;
+        }
+
+        .toast-banner.show {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .toast-banner.success {
+            border-color: var(--emerald);
+            background: #064e3b;
+        }
+
+        .toast-banner.error {
+            border-color: var(--rose);
+            background: #4c0519;
+        }
+
+        /* 關卡卡片區塊 */
+        .stage-section {
+            display: none;
+            animation: fadeIn 0.35s ease;
+        }
+
+        .stage-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-6px); }
+            40%, 80% { transform: translateX(6px); }
+        }
+
+        .shake {
+            animation: shake 0.4s ease;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 20px;
+            padding: 1.5rem;
+            margin-bottom: 1.25rem;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+        }
+
+        .card.highlight-cyan {
+            border-color: rgba(0, 240, 255, 0.45);
+        }
+
+        .card.highlight-amber {
+            border-color: rgba(255, 183, 3, 0.45);
+        }
+
+        .card.locked-panel {
+            opacity: 0.45;
+            pointer-events: none;
+            filter: grayscale(0.4);
+        }
+
+        .stage-header {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .stage-tag {
+            display: inline-block;
+            font-size: 0.75rem;
+            font-weight: 800;
+            padding: 0.25rem 0.7rem;
+            border-radius: 999px;
+            background: var(--neon-cyan-dim);
+            color: var(--neon-cyan);
+            border: 1px solid rgba(0, 240, 255, 0.35);
+            margin-bottom: 0.4rem;
+        }
+
+        .stage-title {
+            font-size: 1.45rem;
+            font-weight: 800;
+            color: #fff;
+        }
+
+        .stage-desc {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-top: 0.25rem;
+        }
+
+        .task-header {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.5rem;
+            margin-bottom: 0.85rem;
+        }
+
+        .task-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--neon-cyan);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .task-badge {
+            font-size: 0.78rem;
+            font-weight: 700;
+            padding: 0.25rem 0.75rem;
+            border-radius: 999px;
+            background: var(--amber-dim);
+            color: var(--amber-gold);
+        }
+
+        .task-badge.done {
+            background: var(--emerald-dim);
+            color: var(--emerald);
+        }
+
+        .task-badge.locked {
+            background: rgba(148, 163, 184, 0.15);
+            color: var(--text-muted);
+        }
+
+        /* 按鈕系統 */
+        .btn {
+            border: none;
+            border-radius: 12px;
+            padding: 0.7rem 1.35rem;
+            font-size: 0.95rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.45rem;
+        }
+
+        .btn:active {
+            transform: scale(0.97);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-cyan {
+            background: linear-gradient(135deg, #00f0ff, #0284c7);
+            color: #06121e;
+            box-shadow: 0 4px 15px rgba(0, 240, 255, 0.25);
+        }
+
+        .btn-cyan:hover:not(:disabled) {
+            filter: brightness(1.1);
+        }
+
+        .btn-amber {
+            background: linear-gradient(135deg, #ffb703, #f97316);
+            color: #1a0f00;
+            box-shadow: 0 4px 15px rgba(255, 183, 3, 0.25);
+        }
+
+        .btn-amber:hover:not(:disabled) {
+            filter: brightness(1.08);
+        }
+
+        .btn-emerald {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: #022c22;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.25);
+        }
+
+        .btn-outline {
+            background: var(--bg-panel);
+            border: 1px solid var(--border-subtle);
+            color: var(--text-main);
+            padding: 0.5rem 0.95rem;
+            font-size: 0.85rem;
+        }
+
+        .btn-outline:hover {
+            border-color: var(--neon-cyan);
+            color: var(--neon-cyan);
+        }
+
+        /* 第一關：燈泡矩陣 */
+        .bulbs-box {
+            background: var(--bg-panel);
+            border: 1px solid var(--border-subtle);
+            border-radius: 16px;
+            padding: 1.25rem 0.75rem;
+            margin: 1rem 0;
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 0.5rem;
+            max-width: 540px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .bulb-col {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.45rem;
+        }
+
+        .bulb-circle {
+            width: 58px;
+            height: 58px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.35rem;
+            font-weight: 900;
+            transition: all 0.2s;
+            user-select: none;
+        }
+
+        .bulb-circle.interactive {
+            cursor: pointer;
+        }
+
+        .bulb-circle.interactive:hover {
+            transform: scale(1.07);
+        }
+
+        .bulb-on {
+            background: radial-gradient(circle at 35% 35%, #fef08a, #ffb703 70%, #d97706);
+            border: 2.5px solid #fef9c3;
+            color: #1e1b04;
+            box-shadow: 0 0 22px rgba(255, 183, 3, 0.65), inset 0 0 8px rgba(255, 255, 255, 0.7);
+        }
+
+        .bulb-off {
+            background: #182238;
+            border: 2.5px solid #334155;
+            color: #64748b;
+            box-shadow: inset 0 3px 8px rgba(0, 0, 0, 0.6);
+        }
+
+        .bulb-state-text {
+            font-size: 0.78rem;
+            font-weight: 700;
+        }
+
+        .bulb-state-text.on {
+            color: var(--amber-gold);
+        }
+
+        .bulb-state-text.off {
+            color: var(--text-muted);
+        }
+
+        .weight-tag {
+            font-size: 0.8rem;
+            font-weight: 800;
+            padding: 0.15rem 0.55rem;
+            border-radius: 6px;
+            background: rgba(0, 240, 255, 0.12);
+            color: var(--neon-cyan);
+            border: 1px solid rgba(0, 240, 255, 0.3);
+            transition: opacity 0.2s;
+        }
+
+        .weight-tag.hidden-weight {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .input-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+
+        .num-input {
+            background: var(--bg-panel);
+            border: 2px solid var(--border-subtle);
+            border-radius: 12px;
+            color: #fff;
+            font-size: 1.35rem;
+            font-weight: 800;
+            padding: 0.55rem 1rem;
+            width: 150px;
+            text-align: center;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .num-input:focus {
+            border-color: var(--neon-cyan);
+        }
+
+        .target-banner {
+            background: var(--amber-dim);
+            border: 1px solid rgba(255, 183, 3, 0.35);
+            border-radius: 14px;
+            padding: 0.9rem;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        .target-big-num {
+            font-size: 2.3rem;
+            font-weight: 900;
+            color: var(--amber-gold);
+            line-height: 1.2;
+        }
+
+        .feedback-box {
+            margin-top: 1rem;
+            padding: 0.85rem 1rem;
+            border-radius: 12px;
+            background: var(--emerald-dim);
+            border: 1px solid rgba(16, 185, 129, 0.4);
+            color: #a7f3d0;
+            font-size: 0.92rem;
+            text-align: center;
+            display: none;
+        }
+
+        .feedback-box.show {
+            display: block;
+        }
+
+        /* 第二關：外星電報 */
+        .cipher-table-wrap {
+            background: var(--bg-panel);
+            border: 1px solid var(--border-subtle);
+            border-radius: 14px;
+            padding: 1rem;
+            margin-top: 0.75rem;
+            display: none;
+        }
+
+        .cipher-table-wrap.open {
+            display: block;
+        }
+
+        .cipher-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
+            gap: 0.45rem;
+        }
+
+        .cipher-cell {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 8px;
+            padding: 0.35rem;
+            text-align: center;
+            font-size: 0.82rem;
+        }
+
+        .cipher-cell strong {
+            color: var(--neon-cyan);
+            font-size: 0.95rem;
+        }
+
+        .signals-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.75rem;
+            max-width: 620px;
+            margin: 1.25rem auto;
+        }
+
+        .signal-card {
+            background: var(--bg-panel);
+            border: 1.5px solid var(--border-subtle);
+            border-radius: 16px;
+            padding: 1rem 0.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.65rem;
+        }
+
+        .signal-bits {
+            font-size: 1.15rem;
+            font-weight: 800;
+            color: var(--neon-cyan);
+            letter-spacing: 0.08em;
+            background: rgba(0, 240, 255, 0.08);
+            padding: 0.35rem 0.6rem;
+            border-radius: 8px;
+            border: 1px solid rgba(0, 240, 255, 0.25);
+        }
+
+        .letter-input {
+            width: 54px;
+            height: 54px;
+            border-radius: 12px;
+            background: var(--bg-card);
+            border: 2px solid var(--border-subtle);
+            color: #fff;
+            font-size: 1.6rem;
+            font-weight: 900;
+            text-align: center;
+            text-transform: uppercase;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        .letter-input:focus {
+            border-color: var(--neon-cyan);
+            box-shadow: 0 0 12px rgba(0, 240, 255, 0.25);
+        }
+
+        .letter-input.correct {
+            border-color: var(--emerald);
+            background: var(--emerald-dim);
+            color: #6ee7b7;
+        }
+
+        /* 第三關：像素畫 */
+        .pixel-workspace {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            align-items: center;
+            margin-top: 1rem;
+        }
+
+        .target-rows-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+        }
+
+        .target-row-item {
+            background: var(--bg-panel);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            padding: 0.65rem 0.9rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.92rem;
+            transition: all 0.2s;
+        }
+
+        .target-row-item.matched {
+            border-color: var(--emerald);
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .row-code {
+            font-size: 1.1rem;
+            font-weight: 800;
+            letter-spacing: 0.15em;
+            color: var(--neon-cyan);
+        }
+
+        .row-status {
+            font-size: 0.8rem;
+            font-weight: 700;
+            padding: 0.2rem 0.6rem;
+            border-radius: 999px;
+            background: rgba(148, 163, 184, 0.15);
+            color: var(--text-muted);
+        }
+
+        .row-status.ok {
+            background: var(--emerald-dim);
+            color: var(--emerald);
+        }
+
+        .pixel-board {
+            background: var(--bg-panel);
+            border: 2px solid var(--border-subtle);
+            border-radius: 18px;
+            padding: 1rem;
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 0.45rem;
+            max-width: 320px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        .pixel-cell {
+            aspect-ratio: 1 / 1;
+            border-radius: 10px;
+            background: #182238;
+            border: 1.5px solid #2e3d5c;
+            color: #64748b;
+            font-weight: 800;
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s;
+            user-select: none;
+        }
+
+        .pixel-cell:hover {
+            border-color: var(--neon-cyan);
+        }
+
+        .pixel-cell.active {
+            background: linear-gradient(135deg, #ff2a85, #e11d48);
+            border-color: #fda4af;
+            color: #fff;
+            box-shadow: 0 0 14px rgba(255, 42, 133, 0.55);
+            transform: scale(1.03);
+        }
+
+        /* 破關證書 */
+        .cert-card {
+            background: linear-gradient(145deg, #131c31, #0b1120);
+            border: 2px solid var(--amber-gold);
+            border-radius: 24px;
+            padding: 2rem 1.5rem;
+            text-align: center;
+            box-shadow: 0 0 40px rgba(255, 183, 3, 0.18);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cert-medal {
+            font-size: 3.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .cert-title {
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: var(--amber-gold);
+            letter-spacing: 0.05em;
+        }
+
+        .cert-name-box {
+            margin: 1.25rem auto;
+            max-width: 440px;
+            text-align: left;
+            background: rgba(15, 22, 38, 0.75);
+            border: 1px solid var(--border-subtle);
+            border-radius: 16px;
+            padding: 1rem 1.25rem;
+        }
+
+        .student-form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1.3fr;
+            gap: 0.65rem;
+            margin-top: 0.4rem;
+        }
+
+        .cert-name-input {
+            width: 100%;
+            background: var(--bg-panel);
+            border: 1.5px solid var(--border-subtle);
+            border-radius: 10px;
+            padding: 0.55rem 0.75rem;
+            color: #fff;
+            font-size: 0.98rem;
+            text-align: center;
+            outline: none;
+        }
+
+        .cert-name-input:focus {
+            border-color: var(--amber-gold);
+        }
+
+        .cert-actions {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 0.75rem;
+            margin-top: 0.5rem;
+        }
+
+        .cert-name-input {
+            width: 100%;
+            background: var(--bg-panel);
+            border: 1.5px solid var(--border-subtle);
+            border-radius: 12px;
+            padding: 0.65rem 1rem;
+            color: #fff;
+            font-size: 1.05rem;
+            text-align: center;
+            outline: none;
+        }
+
+        .cert-name-input:focus {
+            border-color: var(--amber-gold);
+        }
+
+        .cert-display-name {
+            font-size: 1.65rem;
+            font-weight: 900;
+            color: var(--neon-cyan);
+            border-bottom: 2px dashed rgba(0, 240, 255, 0.4);
+            display: inline-block;
+            padding: 0.25rem 1.5rem;
+            margin: 0.75rem 0;
+        }
+
+        .cert-stats {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            margin: 1.25rem 0 1.75rem;
+            font-size: 0.92rem;
+            color: var(--text-muted);
+        }
+
+        .cert-stats strong {
+            color: #fff;
+            font-size: 1.1rem;
+        }
+
+        footer {
+            text-align: center;
+            padding: 1rem;
+            font-size: 0.78rem;
+            color: #64748b;
+            border-top: 1px solid rgba(35, 48, 77, 0.6);
+        }
+
+        @media (max-width: 680px) {
+            .stage-nav {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .signals-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .pixel-workspace {
+                grid-template-columns: 1fr;
+            }
+            .bulb-circle {
+                width: 48px;
+                height: 48px;
+                font-size: 1.15rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 頂部標題列 -->
+    <header>
+        <div class="header-inner">
+            <div class="brand">
+                <div class="brand-badge mono">01</div>
+                <div>
+                    <div class="brand-title">二進位解謎大挑戰</div>
+                    <div class="brand-sub mono">BINARY ESCAPE PROTOCOL</div>
+                </div>
+            </div>
+            <div class="header-controls">
+                <div class="status-pill mono" title="目前關卡進度">
+                    🚩 <span id="progress-display">1 / 4</span>
+                </div>
+                <div class="status-pill mono" title="挑戰計時">
+                    ⏱️ <span id="timer-display">00:00</span>
+                </div>
+                <button type="button" id="btn-sound" class="btn-icon" onclick="toggleSound()">
+                    🔊 音效：開
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- 提示橫幅 -->
+    <div id="toast" class="toast-banner" role="alert"></div>
+
+    <main>
+        <!-- 關卡進度導覽列 -->
+        <nav class="stage-nav" aria-label="關卡進度">
+            <button type="button" id="nav-stage-1" class="nav-step active" onclick="switchStage(1)">
+                <div class="nav-step-top">
+                    <span>STAGE 01</span>
+                    <span id="nav-status-1">進行中</span>
+                </div>
+                <div class="nav-step-title">💡 密室電燈密碼</div>
+            </button>
+
+            <button type="button" id="nav-stage-2" class="nav-step locked" onclick="switchStage(2)">
+                <div class="nav-step-top">
+                    <span>STAGE 02</span>
+                    <span id="nav-status-2">🔒 未解鎖</span>
+                </div>
+                <div class="nav-step-title">🛸 外星人的秘密電報</div>
+            </button>
+
+            <button type="button" id="nav-stage-3" class="nav-step locked" onclick="switchStage(3)">
+                <div class="nav-step-top">
+                    <span>STAGE 03</span>
+                    <span id="nav-status-3">🔒 未解鎖</span>
+                </div>
+                <div class="nav-step-title">👾 消失的像素畫</div>
+            </button>
+
+            <button type="button" id="nav-stage-4" class="nav-step locked" onclick="switchStage(4)">
+                <div class="nav-step-top">
+                    <span>STAGE 04</span>
+                    <span id="nav-status-4">🔒 未解鎖</span>
+                </div>
+                <div class="nav-step-title">💾 太空艙硬碟救援</div>
+            </button>
+        </nav>
+
+        <!-- ==================== 第一關：密室電燈密碼 ==================== -->
+        <section id="section-stage-1" class="stage-section active">
+            <div class="stage-header">
+                <div>
+                    <span class="stage-tag mono">STAGE 01 // ON &amp; OFF</span>
+                    <h2 class="stage-title">第一關：密室電燈密碼</h2>
+                    <p class="stage-desc">電腦內部用電線的「開 (1)」與「關 (0)」來表示數字。觀察 5 顆燈泡的位值（16、8、4、2、1），解開兩道電子門！</p>
+                </div>
+                <button type="button" id="btn-toggle-weights" class="btn btn-outline" onclick="toggleWeights()">
+                    👁️ 隱藏位值提示
+                </button>
+            </div>
+
+            <!-- 任務一：讀燈猜密碼 -->
+            <div id="card-1-1" class="card highlight-cyan">
+                <div class="task-header">
+                    <div class="task-title">
+                        <span>任務一：讀取目前燈號密碼</span>
+                    </div>
+                    <span id="badge-1-1" class="task-badge">進行中</span>
+                </div>
+                <p style="color: var(--text-muted); font-size: 0.92rem;">
+                    觀察牆上 5 顆燈泡的亮滅狀態，把<strong>亮起 (1)</strong> 的燈泡位值相加，輸入十進位密碼：
+                </p>
+
+                <!-- 5 顆唯讀燈泡 -->
+                <div id="bulbs-1-1" class="bulbs-box"></div>
+
+                <div class="input-row">
+                    <input type="number" id="input-1-1" class="num-input mono" min="1" max="31" placeholder="?" aria-label="任務一十進位密碼">
+                    <button type="button" id="btn-check-1-1" class="btn btn-cyan" onclick="checkTask1_1()">
+                        🔑 解鎖密碼
+                    </button>
+                </div>
+
+                <div id="feedback-1-1" class="feedback-box"></div>
+            </div>
+
+            <!-- 任務二：手動調燈解鎖 -->
+            <div id="card-1-2" class="card locked-panel">
+                <div class="task-header">
+                    <div class="task-title" style="color: var(--amber-gold);">
+                        <span>任務二：手動調燈解鎖</span>
+                    </div>
+                    <span id="badge-1-2" class="task-badge locked">🔒 需先完成任務一</span>
+                </div>
+
+                <div class="target-banner">
+                    <div style="font-size: 0.9rem; color: #fde68a;">請按亮下方燈泡，湊出十進位密碼：</div>
+                    <div id="target-1-2-display" class="target-big-num mono">--</div>
+                </div>
+
+                <!-- 5 顆可點擊互動燈泡 -->
+                <div id="bulbs-1-2" class="bulbs-box"></div>
+
+                <div class="input-row">
+                    <input type="text" id="input-1-2" class="num-input mono" maxlength="5" inputmode="numeric" placeholder="輸入5碼二進位" style="width: 210px; letter-spacing: 0.12em;" aria-label="任務二5碼二進位密碼">
+                    <button type="button" id="btn-check-1-2" class="btn btn-amber" onclick="checkTask1_2()">
+                        ⚡ 驗證燈泡與二進位
+                    </button>
+                </div>
+
+                <div id="feedback-1-2" class="feedback-box"></div>
+
+                <div id="next-stage-1-wrap" style="display: none; text-align: center; margin-top: 1.25rem;">
+                    <button type="button" class="btn btn-emerald" onclick="switchStage(2)">
+                        🚀 前往第二關：外星人的秘密電報 →
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== 第二關：外星人的秘密電報 ==================== -->
+        <section id="section-stage-2" class="stage-section">
+            <div class="stage-header">
+                <div>
+                    <span class="stage-tag mono">STAGE 02 // BINARY TO TEXT</span>
+                    <h2 class="stage-title">第二關：外星人的秘密電報</h2>
+                    <p class="stage-desc">太空總署攔截到 4 組外星二進位訊號！規則與影片相同：先將二進位換算成十進位數字（1～26），再對照英文字母（A=1, B=2 ... Z=26）。</p>
+                </div>
+                <button type="button" id="btn-toggle-cipher" class="btn btn-outline" onclick="toggleCipherTable()">
+                    📖 展開星際字母編碼表
+                </button>
+            </div>
+
+            <!-- 可折疊的 A-Z 編碼表 -->
+            <div id="cipher-table-wrap" class="cipher-table-wrap">
+                <div style="font-size: 0.85rem; color: var(--neon-cyan); font-weight: 700; margin-bottom: 0.6rem;">
+                    星際字母編碼對照表（十進位數字 → 英文字母）：
+                </div>
+                <div id="cipher-grid" class="cipher-grid mono"></div>
+            </div>
+
+            <div class="card highlight-cyan" style="margin-top: 1.25rem;">
+                <div class="task-header">
+                    <div class="task-title">破譯 4 組外星訊號單字</div>
+                    <span id="badge-2" class="task-badge">進行中</span>
+                </div>
+
+                <div class="signals-grid">
+                    <div class="signal-card">
+                        <div style="font-size: 0.78rem; color: var(--text-muted);">訊號 #1</div>
+                        <div class="signal-bits mono">00011</div>
+                        <input type="text" maxlength="1" class="letter-input mono" id="alien-0" data-idx="0" aria-label="第1個字母">
+                    </div>
+                    <div class="signal-card">
+                        <div style="font-size: 0.78rem; color: var(--text-muted);">訊號 #2</div>
+                        <div class="signal-bits mono">01111</div>
+                        <input type="text" maxlength="1" class="letter-input mono" id="alien-1" data-idx="1" aria-label="第2個字母">
+                    </div>
+                    <div class="signal-card">
+                        <div style="font-size: 0.78rem; color: var(--text-muted);">訊號 #3</div>
+                        <div class="signal-bits mono">00100</div>
+                        <input type="text" maxlength="1" class="letter-input mono" id="alien-2" data-idx="2" aria-label="第3個字母">
+                    </div>
+                    <div class="signal-card">
+                        <div style="font-size: 0.78rem; color: var(--text-muted);">訊號 #4</div>
+                        <div class="signal-bits mono">00101</div>
+                        <input type="text" maxlength="1" class="letter-input mono" id="alien-3" data-idx="3" aria-label="第4個字母">
+                    </div>
+                </div>
+
+                <div class="input-row">
+                    <button type="button" id="btn-check-2" class="btn btn-cyan" onclick="checkStage2()">
+                        📡 破譯電報
+                    </button>
+                </div>
+
+                <div id="feedback-2" class="feedback-box"></div>
+
+                <div id="next-stage-2-wrap" style="display: none; text-align: center; margin-top: 1.25rem;">
+                    <button type="button" class="btn btn-emerald" onclick="switchStage(3)">
+                        🚀 前往第三關：消失的像素畫 →
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== 第三關：消失的像素畫 ==================== -->
+        <section id="section-stage-3" class="stage-section">
+            <div class="stage-header">
+                <div>
+                    <span class="stage-tag mono">STAGE 03 // PIXEL MATRIX</span>
+                    <h2 class="stage-title">第三關：消失的像素畫</h2>
+                    <p class="stage-desc">電腦螢幕上的圖片是由無數個「像素 (Pixel)」組成的。請依據左側每一列的 5 位元代碼（<strong>0 = 暗、1 = 亮</strong>），在右側 5×5 畫布點擊還原圖案！</p>
+                </div>
+                <button type="button" class="btn btn-outline" onclick="clearPixelGrid()">
+                    🧹 清空畫布
+                </button>
+            </div>
+
+            <div class="card highlight-cyan">
+                <div class="pixel-workspace">
+                    <!-- 左側：5 列目標代碼與即時比對狀態 -->
+                    <div>
+                        <div style="font-size: 0.9rem; font-weight: 700; color: var(--neon-cyan); margin-bottom: 0.65rem;">
+                            目標二進位圖像代碼：
+                        </div>
+                        <div id="target-rows-list" class="target-rows-list"></div>
+                    </div>
+
+                    <!-- 右側：5×5 互動畫布 -->
+                    <div>
+                        <div style="font-size: 0.9rem; font-weight: 700; color: var(--text-muted); text-align: center; margin-bottom: 0.65rem;">
+                            點擊方格切換 0 / 1：
+                        </div>
+                        <div id="pixel-board" class="pixel-board"></div>
+                    </div>
+                </div>
+
+                <div id="feedback-3" class="feedback-box"></div>
+
+                <div id="next-stage-3-wrap" style="display: none; text-align: center; margin-top: 1.25rem;">
+                    <button type="button" class="btn btn-emerald" onclick="switchStage(4)">
+                        🚀 前往第四關：太空艙硬碟救援 →
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== 第四關：太空艙硬碟救援 ==================== -->
+        <section id="section-stage-4" class="stage-section">
+            <div class="stage-header">
+                <div>
+                    <span class="stage-tag mono">STAGE 04 // DATA CAPACITY</span>
+                    <h2 class="stage-title">第四關：太空艙硬碟救援</h2>
+                    <p class="stage-desc">太空艙電腦記憶體即將爆滿！運用資料單位換算知識，協助系統計算位元數與照片儲存上限。</p>
+                </div>
+            </div>
+
+            <!-- 任務一：Bit 與 Byte 換算 -->
+            <div id="card-4-1" class="card highlight-cyan">
+                <div class="task-header">
+                    <div class="task-title">
+                        <span>任務一：Bit 與 Byte 單位換算</span>
+                    </div>
+                    <span id="badge-4-1" class="task-badge">進行中</span>
+                </div>
+                <p style="color: var(--text-muted); font-size: 0.92rem;">
+                    小提示：<strong style="color: var(--neon-cyan);">1 Byte（位元組） = 8 bits（位元）</strong>。請問 <strong id="target-4-1-bytes" class="mono" style="color: #fff; font-size: 1.1rem;">--</strong> Bytes 等於多少 bits？
+                </p>
+
+                <div class="input-row">
+                    <input type="number" id="input-4-1" class="num-input mono" min="1" max="999" placeholder="?" aria-label="bits 數量">
+                    <span class="mono" style="color: var(--text-muted); font-weight: 700;">bits</span>
+                    <button type="button" id="btn-check-4-1" class="btn btn-cyan" onclick="checkTask4_1()">
+                        🧮 確認換算
+                    </button>
+                </div>
+
+                <div id="feedback-4-1" class="feedback-box"></div>
+            </div>
+
+            <!-- 任務二：隨身碟容量計算 -->
+            <div id="card-4-2" class="card locked-panel">
+                <div class="task-header">
+                    <div class="task-title" style="color: var(--amber-gold);">
+                        <span>任務二：隨身碟照片儲存上限</span>
+                    </div>
+                    <span id="badge-4-2" class="task-badge locked">🔒 需先完成任務一</span>
+                </div>
+                <p style="color: var(--text-muted); font-size: 0.92rem;">
+                    小提示：<strong style="color: var(--amber-gold);">1 GB = 1024 MB</strong>（二進位真實容量進制）。如果每張高清太空照片的大小是 <strong id="target-4-2-mb" class="mono" style="color: #fff; font-size: 1.1rem;">--</strong> MB，請問 <strong>1 GB</strong> 的隨身碟最多可以存幾張照片？
+                </p>
+
+                <div class="input-row">
+                    <input type="number" id="input-4-2" class="num-input mono" min="1" max="1000" placeholder="?" aria-label="照片張數">
+                    <span class="mono" style="color: var(--text-muted); font-weight: 700;">張照片</span>
+                    <button type="button" id="btn-check-4-2" class="btn btn-amber" onclick="checkTask4_2()">
+                        💾 計算容量
+                    </button>
+                </div>
+
+                <div id="feedback-4-2" class="feedback-box"></div>
+
+                <div id="next-stage-4-wrap" style="display: none; text-align: center; margin-top: 1.25rem;">
+                    <button type="button" class="btn btn-amber" onclick="showCertificate()">
+                        🏆 領取二進位解謎破關證書 →
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== 最終破關證書 ==================== -->
+        <section id="section-cert" class="stage-section">
+            <div class="cert-card">
+                <div class="cert-medal">🏆</div>
+                <div class="mono" style="color: var(--neon-cyan); font-size: 0.85rem; letter-spacing: 0.15em;">
+                    MISSION ACCOMPLISHED // 4/4 STAGES CLEARED
+                </div>
+                <h2 class="cert-title">二進位解謎大師認證（4 關全破）</h2>
+                <p style="color: var(--text-muted); margin-top: 0.5rem;">
+                    恭喜成功破解「電燈位值密碼」、「外星字母電報」、「像素矩陣還原」與「太空艙硬碟救援」四大關卡！
+                </p>
+
+                <div class="cert-name-box">
+                    <div style="font-size: 0.85rem; color: var(--amber-gold); font-weight: 700; margin-bottom: 0.35rem;">
+                        📝 登錄挑戰者資料（自動回傳成績給老師）：
+                    </div>
+                    <div class="student-form-grid">
+                        <div>
+                            <label for="student-class-input" style="display:block; font-size:0.75rem; color:var(--text-muted); margin-bottom:0.2rem;">班級</label>
+                            <input type="text" id="student-class-input" class="cert-name-input" placeholder="如：701" maxlength="10" oninput="updateCertDisplay()">
+                        </div>
+                        <div>
+                            <label for="student-seat-input" style="display:block; font-size:0.75rem; color:var(--text-muted); margin-bottom:0.2rem;">座號</label>
+                            <input type="text" id="student-seat-input" class="cert-name-input" placeholder="如：05" maxlength="5" oninput="updateCertDisplay()">
+                        </div>
+                        <div>
+                            <label for="student-name-input" style="display:block; font-size:0.75rem; color:var(--text-muted); margin-bottom:0.2rem;">姓名</label>
+                            <input type="text" id="student-name-input" class="cert-name-input" placeholder="如：王小明" maxlength="16" oninput="updateCertDisplay()">
+                        </div>
+                    </div>
+                </div>
+
+                <div id="cert-display-name" class="cert-display-name">二進位特攻隊員</div>
+
+                <div class="cert-stats mono">
+                    <div>完成關卡：<strong>4 / 4 全破 🏅</strong></div>
+                    <div>通關時間：<strong id="cert-time">00:00</strong></div>
+                    <div>第一關密碼：<strong id="cert-t1">--</strong> / <strong id="cert-t2">--</strong></div>
+                </div>
+
+                <div class="cert-actions">
+                    <button type="button" id="btn-submit-score" class="btn btn-amber" onclick="submitScoreToGoogleForm()">
+                        📤 傳送成績至老師表單
+                    </button>
+                    <button type="button" class="btn btn-cyan" onclick="resetGame()">
+                        🔄 再玩一次（重新抽題）
+                    </button>
+                </div>
+                <div id="submit-status-box" class="feedback-box" style="max-width: 440px; margin: 1rem auto 0;"></div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        配合《How Computers Work: Binary &amp; Data》教學設計 ・ 互動式二進位學習密室
+    </footer>
+
+    <script>
+        // ==================== 0. Google 表單自動登錄設定區（已綁定老師的表單） ====================
+        const GOOGLE_FORM_CONFIG = {
+            // 1. Google 表單「formResponse」背景送出網址
+            formActionUrl: 'https://docs.google.com/forms/d/e/1FAIpQLSeNN7iO2wH9sNzB5tNtzbBfx0FSsksIAWmqqDT5R0TvPfNCqA/formResponse',
+            // 2. 各題目的實際欄位代號
+            fields: {
+                className: 'entry.459994374',   // 班級欄位
+                seatNumber: 'entry.1025792413', // 座號欄位
+                studentName: 'entry.1475823703', // 姓名欄位
+                progress: 'entry.1085069672',   // 完成關卡欄位
+                clearTime: 'entry.1495213078'   // 通關時間欄位
+            }
+        };
+
+        // ==================== 1. Web Audio API 合成音效 (含安全防呆) ====================
+        let soundEnabled = true;
+        let audioCtx = null;
+
+        function getAudioContext() {
+            if (!audioCtx) {
+                const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+                if (AudioContextClass) {
+                    audioCtx = new AudioContextClass();
+                }
+            }
+            if (audioCtx && audioCtx.state === 'suspended') {
+                audioCtx.resume().catch(() => {});
+            }
+            return audioCtx;
+        }
+
+        function playTone(freq, duration, type = 'sine', delay = 0) {
+            if (!soundEnabled) return;
+            try {
+                const ctx = getAudioContext();
+                if (!ctx) return;
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, ctx.currentTime + delay);
+
+                gain.gain.setValueAtTime(0.12, ctx.currentTime + delay);
+                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + delay + duration);
+
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start(ctx.currentTime + delay);
+                osc.stop(ctx.currentTime + delay + duration);
+            } catch (err) {
+                // 忽略瀏覽器音效限制錯誤，確保不影響遊戲互動
+            }
+        }
+
+        function playClickSound(isOn = true) {
+            playTone(isOn ? 680 : 420, 0.08, 'triangle');
+        }
+
+        function playSuccessSound() {
+            playTone(523.25, 0.12, 'sine', 0);
+            playTone(659.25, 0.12, 'sine', 0.1);
+            playTone(783.99, 0.22, 'sine', 0.2);
+        }
+
+        function playErrorSound() {
+            playTone(220, 0.15, 'sawtooth', 0);
+            playTone(180, 0.2, 'sawtooth', 0.12);
+        }
+
+        function playWinSound() {
+            playTone(523.25, 0.12, 'triangle', 0);
+            playTone(659.25, 0.12, 'triangle', 0.1);
+            playTone(783.99, 0.12, 'triangle', 0.2);
+            playTone(1046.5, 0.35, 'triangle', 0.3);
+        }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            const btn = document.getElementById('btn-sound');
+            if (btn) {
+                btn.textContent = soundEnabled ? '🔊 音效：開' : '🔇 音效：關';
+            }
+            if (soundEnabled) playClickSound(true);
+        }
+
+        // ==================== 2. 遊戲核心狀態 ====================
+        const WEIGHTS = [16, 8, 4, 2, 1];
+        const PIXEL_TARGETS = [
+            '01010',
+            '11111',
+            '11111',
+            '01110',
+            '00100'
+        ];
+
+        const state = {
+            currentStage: 1,
+            unlockedStage: 1,
+            showWeights: true,
+            target1: 0,
+            target2: 0,
+            targetBytes: 0,
+            targetPhotoMB: 0,
+            task1_1Done: false,
+            task1_2Done: false,
+            stage2Done: false,
+            stage3Done: false,
+            task4_1Done: false,
+            task4_2Done: false,
+            bulbs1_2: [0, 0, 0, 0, 0],
+            pixelGrid: [
+                [0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0]
+            ],
+            seconds: 0,
+            timerId: null
+        };
+
+        let toastTimer = null;
+        function showToast(msg, type = 'info') {
+            const toast = document.getElementById('toast');
+            if (!toast) return;
+            toast.textContent = msg;
+            toast.className = 'toast-banner show ' + type;
+            if (toastTimer) clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3400);
+        }
+
+        // ==================== 3. 計時器與導覽切換 ====================
+        function formatTime(sec) {
+            const m = String(Math.floor(sec / 60)).padStart(2, '0');
+            const s = String(sec % 60).padStart(2, '0');
+            return `${m}:${s}`;
+        }
+
+        function startTimer() {
+            if (state.timerId) clearInterval(state.timerId);
+            state.timerId = setInterval(() => {
+                if (!state.task4_2Done) {
+                    state.seconds++;
+                    const el = document.getElementById('timer-display');
+                    if (el) el.textContent = formatTime(state.seconds);
+                }
+            }, 1000);
+        }
+
+        function updateNavUI() {
+            const progEl = document.getElementById('progress-display');
+            if (progEl) {
+                progEl.textContent = `${state.currentStage} / 4`;
+            }
+
+            for (let i = 1; i <= 4; i++) {
+                const btn = document.getElementById(`nav-stage-${i}`);
+                const statusEl = document.getElementById(`nav-status-${i}`);
+                if (!btn || !statusEl) continue;
+
+                btn.classList.remove('active', 'completed', 'locked');
+                const isDone = (i === 1 && state.task1_2Done) ||
+                               (i === 2 && state.stage2Done) ||
+                               (i === 3 && state.stage3Done) ||
+                               (i === 4 && state.task4_2Done);
+
+                if (i > state.unlockedStage) {
+                    btn.classList.add('locked');
+                    statusEl.textContent = '🔒 未解鎖';
+                } else if (isDone) {
+                    btn.classList.add('completed');
+                    statusEl.textContent = '✅ 已破關';
+                } else {
+                    statusEl.textContent = '進行中';
+                }
+
+                if (state.currentStage === i) {
+                    btn.classList.add('active');
+                }
+            }
+        }
+
+        function switchStage(stageNum) {
+            if (stageNum > state.unlockedStage) {
+                playErrorSound();
+                showToast(`🔒 請先完成第 ${state.unlockedStage} 關才能解鎖下一關！`, 'error');
+                return;
+            }
+            playClickSound(true);
+            state.currentStage = stageNum;
+
+            document.querySelectorAll('.stage-section').forEach(sec => sec.classList.remove('active'));
+            const targetSec = document.getElementById(`section-stage-${stageNum}`);
+            if (targetSec) targetSec.classList.add('active');
+
+            updateNavUI();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // ==================== 4. 第一關：密室電燈密碼 ====================
+        function countSetBits(n) {
+            return n.toString(2).split('').filter(b => b === '1').length;
+        }
+
+        function generateRandomTargets() {
+            // 產生 1~31 且二進位至少有 2 個 1 的數字（排除 1, 2, 4, 8, 16）
+            const validPool = [];
+            for (let i = 1; i <= 31; i++) {
+                if (countSetBits(i) >= 2) validPool.push(i);
+            }
+
+            const idx1 = Math.floor(Math.random() * validPool.length);
+            const n1 = validPool[idx1];
+
+            let idx2 = Math.floor(Math.random() * validPool.length);
+            while (idx2 === idx1) {
+                idx2 = Math.floor(Math.random() * validPool.length);
+            }
+            const n2 = validPool[idx2];
+
+            state.target1 = n1;
+            state.target2 = n2;
+
+            const t2Display = document.getElementById('target-1-2-display');
+            if (t2Display) t2Display.textContent = n2;
+
+            // 第四關隨機題目：N Bytes (2~9) 與照片大小 M MB ([4, 8, 16, 32])
+            state.targetBytes = Math.floor(Math.random() * 8) + 2;
+            const photoSizes = [4, 8, 16, 32];
+            state.targetPhotoMB = photoSizes[Math.floor(Math.random() * photoSizes.length)];
+
+            const t41El = document.getElementById('target-4-1-bytes');
+            const t42El = document.getElementById('target-4-2-mb');
+            if (t41El) t41El.textContent = state.targetBytes;
+            if (t42El) t42El.textContent = state.targetPhotoMB;
+        }
+
+        function toggleWeights() {
+            state.showWeights = !state.showWeights;
+            playClickSound(state.showWeights);
+            const btn = document.getElementById('btn-toggle-weights');
+            if (btn) {
+                btn.textContent = state.showWeights ? '👁️ 隱藏位值提示' : '💡 顯示位值提示';
+            }
+            document.querySelectorAll('.weight-tag').forEach(tag => {
+                tag.classList.toggle('hidden-weight', !state.showWeights);
+            });
+        }
+
+        function buildFormulaText(num) {
+            const bin = num.toString(2).padStart(5, '0');
+            const terms = bin.split('').map((bit, idx) => (bit === '1' ? WEIGHTS[idx] : 0));
+            return `${terms.join(' + ')} = ${num}`;
+        }
+
+        function renderBulbs1_1() {
+            const container = document.getElementById('bulbs-1-1');
+            if (!container) return;
+            container.innerHTML = '';
+
+            const binStr = state.target1.toString(2).padStart(5, '0');
+            binStr.split('').forEach((bitChar, idx) => {
+                const isOn = bitChar === '1';
+                const col = document.createElement('div');
+                col.className = 'bulb-col';
+                col.innerHTML = `
+                    <div class="bulb-circle mono ${isOn ? 'bulb-on' : 'bulb-off'}">${bitChar}</div>
+                    <div class="bulb-state-text ${isOn ? 'on' : 'off'}">${isOn ? '亮 (1)' : '滅 (0)'}</div>
+                    <div class="weight-tag mono ${state.showWeights ? '' : 'hidden-weight'}">${WEIGHTS[idx]}</div>
+                `;
+                container.appendChild(col);
+            });
+        }
+
+        function checkTask1_1() {
+            const input = document.getElementById('input-1-1');
+            if (!input) return;
+            const userVal = parseInt(input.value, 10);
+
+            if (userVal === state.target1) {
+                playSuccessSound();
+                state.task1_1Done = true;
+
+                const binStr = state.target1.toString(2).padStart(5, '0');
+                const fb = document.getElementById('feedback-1-1');
+                if (fb) {
+                    fb.innerHTML = `✅ <strong>解鎖成功！</strong> 二進位 <span class="mono">${binStr}</span> 換算算式：<strong class="mono">${buildFormulaText(state.target1)}</strong>`;
+                    fb.classList.add('show');
+                }
+
+                const badge1 = document.getElementById('badge-1-1');
+                if (badge1) {
+                    badge1.textContent = '✅ 已完成';
+                    badge1.classList.add('done');
+                }
+                input.disabled = true;
+                const btn1 = document.getElementById('btn-check-1-1');
+                if (btn1) btn1.disabled = true;
+
+                // 解鎖任務二
+                const card2 = document.getElementById('card-1-2');
+                if (card2) {
+                    card2.classList.remove('locked-panel');
+                    card2.classList.add('highlight-amber');
+                }
+                const badge2 = document.getElementById('badge-1-2');
+                if (badge2) {
+                    badge2.textContent = '進行中';
+                    badge2.classList.remove('locked');
+                }
+
+                showToast('🎉 任務一破解！任務二手動調燈已解鎖！', 'success');
+            } else {
+                playErrorSound();
+                input.classList.add('shake');
+                setTimeout(() => input.classList.remove('shake'), 420);
+                showToast('❌ 密碼不對喔！把亮起 (1) 的燈泡位值加起來試試看。', 'error');
+            }
+        }
+
+        function renderBulbs1_2() {
+            const container = document.getElementById('bulbs-1-2');
+            if (!container) return;
+            container.innerHTML = '';
+
+            state.bulbs1_2.forEach((bit, idx) => {
+                const isOn = bit === 1;
+                const col = document.createElement('div');
+                col.className = 'bulb-col';
+
+                const circle = document.createElement('div');
+                circle.className = `bulb-circle interactive mono ${isOn ? 'bulb-on' : 'bulb-off'}`;
+                circle.textContent = bit;
+                circle.onclick = () => {
+                    if (state.task1_2Done) return;
+                    state.bulbs1_2[idx] = isOn ? 0 : 1;
+                    playClickSound(!isOn);
+                    renderBulbs1_2();
+                };
+
+                const stateText = document.createElement('div');
+                stateText.className = `bulb-state-text ${isOn ? 'on' : 'off'}`;
+                stateText.textContent = isOn ? '亮 (1)' : '滅 (0)';
+
+                const weightTag = document.createElement('div');
+                weightTag.className = `weight-tag mono ${state.showWeights ? '' : 'hidden-weight'}`;
+                weightTag.textContent = WEIGHTS[idx];
+
+                col.appendChild(circle);
+                col.appendChild(stateText);
+                col.appendChild(weightTag);
+                container.appendChild(col);
+            });
+        }
+
+        function checkTask1_2() {
+            const currentSum = state.bulbs1_2.reduce((acc, bit, idx) => acc + bit * WEIGHTS[idx], 0);
+            const expectedBin = state.target2.toString(2).padStart(5, '0');
+            const inputBinEl = document.getElementById('input-1-2');
+            const userBin = inputBinEl ? inputBinEl.value.trim() : '';
+
+            if (currentSum !== state.target2) {
+                playErrorSound();
+                const box = document.getElementById('bulbs-1-2');
+                if (box) {
+                    box.classList.add('shake');
+                    setTimeout(() => box.classList.remove('shake'), 420);
+                }
+                showToast(`❌ 目前亮起的總和是 ${currentSum}，目標是 ${state.target2}，先調好燈泡吧！`, 'error');
+                return;
+            }
+
+            if (userBin !== expectedBin) {
+                playErrorSound();
+                if (inputBinEl) {
+                    inputBinEl.classList.add('shake');
+                    setTimeout(() => inputBinEl.classList.remove('shake'), 420);
+                    inputBinEl.focus();
+                }
+                showToast('❌ 燈泡調對了！但請在空格輸入完整的 5 位數二進位代碼（亮=1、滅=0）。', 'error');
+                return;
+            }
+
+            playSuccessSound();
+            state.task1_2Done = true;
+            state.unlockedStage = Math.max(state.unlockedStage, 2);
+
+            const fb = document.getElementById('feedback-1-2');
+            if (fb) {
+                fb.innerHTML = `🎉 <strong>恭喜過關！</strong> 燈泡與二進位 <span class="mono">${expectedBin}</span> 完全正確！算式：<strong class="mono">${buildFormulaText(state.target2)}</strong>`;
+                fb.classList.add('show');
+            }
+
+            const badge2 = document.getElementById('badge-1-2');
+            if (badge2) {
+                badge2.textContent = '✅ 已完成';
+                badge2.classList.add('done');
+            }
+
+            if (inputBinEl) inputBinEl.disabled = true;
+
+            const btnCheck = document.getElementById('btn-check-1-2');
+            if (btnCheck) btnCheck.disabled = true;
+
+            const nextWrap = document.getElementById('next-stage-1-wrap');
+            if (nextWrap) nextWrap.style.display = 'block';
+
+            updateNavUI();
+            showToast('🔓 第一關全數破關！已解鎖第二關！', 'success');
+        }
+
+        // ==================== 5. 第二關：外星人的秘密電報 ====================
+        function initCipherTable() {
+            const grid = document.getElementById('cipher-grid');
+            if (!grid) return;
+            grid.innerHTML = '';
+            for (let i = 1; i <= 26; i++) {
+                const letter = String.fromCharCode(64 + i);
+                const cell = document.createElement('div');
+                cell.className = 'cipher-cell';
+                cell.innerHTML = `<strong>${letter}</strong> = ${i}`;
+                grid.appendChild(cell);
+            }
+        }
+
+        function toggleCipherTable() {
+            const wrap = document.getElementById('cipher-table-wrap');
+            const btn = document.getElementById('btn-toggle-cipher');
+            if (!wrap || !btn) return;
+            const isOpen = wrap.classList.toggle('open');
+            playClickSound(isOpen);
+            btn.textContent = isOpen ? '📕 收起星際字母編碼表' : '📖 展開星際字母編碼表';
+        }
+
+        function initAlienInputs() {
+            const inputs = document.querySelectorAll('.letter-input');
+            inputs.forEach((inp, idx) => {
+                inp.addEventListener('input', (e) => {
+                    const clean = e.target.value.replace(/[^a-zA-Z]/g, '').toUpperCase();
+                    e.target.value = clean;
+                    if (clean.length === 1 && idx < inputs.length - 1) {
+                        inputs[idx + 1].focus();
+                    }
+                });
+
+                inp.addEventListener('keydown', (e) => {
+                    if (e.key === 'Backspace' && e.target.value === '' && idx > 0) {
+                        inputs[idx - 1].focus();
+                    } else if (e.key === 'Enter') {
+                        checkStage2();
+                    }
+                });
+            });
+        }
+
+        function checkStage2() {
+            const expected = ['C', 'O', 'D', 'E'];
+            const inputs = [0, 1, 2, 3].map(i => document.getElementById(`alien-${i}`));
+            const userWord = inputs.map(el => (el ? el.value.trim().toUpperCase() : '')).join('');
+
+            if (userWord === 'CODE') {
+                playSuccessSound();
+                state.stage2Done = true;
+                state.unlockedStage = Math.max(state.unlockedStage, 3);
+
+                inputs.forEach(el => {
+                    if (el) {
+                        el.classList.add('correct');
+                        el.disabled = true;
+                    }
+                });
+
+                const fb = document.getElementById('feedback-2');
+                if (fb) {
+                    fb.innerHTML = `🛸 <strong>破譯成功！單字是 CODE！</strong><br>
+                    <span class="mono">00011 = 3 (C) ｜ 01111 = 15 (O) ｜ 00100 = 4 (D) ｜ 00101 = 5 (E)</span>`;
+                    fb.classList.add('show');
+                }
+
+                const badge = document.getElementById('badge-2');
+                if (badge) {
+                    badge.textContent = '✅ 已破譯';
+                    badge.classList.add('done');
+                }
+
+                const btn = document.getElementById('btn-check-2');
+                if (btn) btn.disabled = true;
+
+                const nextWrap = document.getElementById('next-stage-2-wrap');
+                if (nextWrap) nextWrap.style.display = 'block';
+
+                updateNavUI();
+                showToast('🎉 成功破譯外星電報 CODE！第三關已解鎖！', 'success');
+            } else {
+                playErrorSound();
+                const grid = document.querySelector('.signals-grid');
+                if (grid) {
+                    grid.classList.add('shake');
+                    setTimeout(() => grid.classList.remove('shake'), 420);
+                }
+                showToast('❌ 破譯失敗！提示：00011 = 2 + 1 = 3，第 3 個英文字母是 C。', 'error');
+            }
+        }
+
+        // ==================== 6. 第三關：消失的像素畫 ====================
+        function renderStage3() {
+            const rowsList = document.getElementById('target-rows-list');
+            const board = document.getElementById('pixel-board');
+            if (!rowsList || !board) return;
+
+            rowsList.innerHTML = '';
+            board.innerHTML = '';
+
+            let allMatched = true;
+
+            for (let r = 0; r < 5; r++) {
+                const currentRowStr = state.pixelGrid[r].join('');
+                const targetRowStr = PIXEL_TARGETS[r];
+                const isMatch = currentRowStr === targetRowStr;
+                if (!isMatch) allMatched = false;
+
+                // 左側列狀態
+                const rowItem = document.createElement('div');
+                rowItem.className = `target-row-item ${isMatch ? 'matched' : ''}`;
+                rowItem.innerHTML = `
+                    <span style="color: var(--text-muted); font-weight: 700;">第 ${r + 1} 列</span>
+                    <span class="row-code mono">${targetRowStr}</span>
+                    <span class="row-status ${isMatch ? 'ok' : ''}">${isMatch ? '符合 ✓' : '未符合'}</span>
+                `;
+                rowsList.appendChild(rowItem);
+
+                // 右側 5 顆像素格子
+                for (let c = 0; c < 5; c++) {
+                    const val = state.pixelGrid[r][c];
+                    const cell = document.createElement('button');
+                    cell.type = 'button';
+                    cell.className = `pixel-cell mono ${val === 1 ? 'active' : ''}`;
+                    cell.textContent = val;
+                    cell.setAttribute('aria-label', `第${r + 1}列第${c + 1}格，目前為${val}`);
+                    cell.onclick = () => {
+                        state.pixelGrid[r][c] = val === 1 ? 0 : 1;
+                        playClickSound(val === 0);
+                        renderStage3();
+                    };
+                    board.appendChild(cell);
+                }
+            }
+
+            if (allMatched && !state.stage3Done) {
+                state.stage3Done = true;
+                state.unlockedStage = Math.max(state.unlockedStage, 4);
+                playSuccessSound();
+                updateNavUI();
+
+                const fb = document.getElementById('feedback-3');
+                if (fb) {
+                    fb.innerHTML = '💖 <strong>圖像還原成功！</strong> 你用 25 個位元 (Bits) 拼出了一顆愛心像素圖！';
+                    fb.classList.add('show');
+                }
+
+                const nextWrap = document.getElementById('next-stage-3-wrap');
+                if (nextWrap) nextWrap.style.display = 'block';
+
+                showToast('🎉 第三關完成！第四關「太空艙硬碟救援」已解鎖！', 'success');
+            }
+        }
+
+        function clearPixelGrid() {
+            playClickSound(false);
+            state.pixelGrid = [
+                [0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0]
+            ];
+            renderStage3();
+            showToast('🧹 已清空 5×5 像素畫布！', 'info');
+        }
+
+        // ==================== 7. 第四關：太空艙硬碟救援 ====================
+        function checkTask4_1() {
+            const input = document.getElementById('input-4-1');
+            if (!input) return;
+            const userVal = parseInt(input.value, 10);
+            const expected = state.targetBytes * 8;
+
+            if (userVal === expected) {
+                playSuccessSound();
+                state.task4_1Done = true;
+
+                const fb = document.getElementById('feedback-4-1');
+                if (fb) {
+                    fb.innerHTML = `✅ <strong>換算正確！</strong> <span class="mono">${state.targetBytes} Bytes × 8 = ${expected} bits</span>`;
+                    fb.classList.add('show');
+                }
+
+                const badge1 = document.getElementById('badge-4-1');
+                if (badge1) {
+                    badge1.textContent = '✅ 已完成';
+                    badge1.classList.add('done');
+                }
+                input.disabled = true;
+                const btn1 = document.getElementById('btn-check-4-1');
+                if (btn1) btn1.disabled = true;
+
+                // 解鎖任務二
+                const card2 = document.getElementById('card-4-2');
+                if (card2) {
+                    card2.classList.remove('locked-panel');
+                    card2.classList.add('highlight-amber');
+                }
+                const badge2 = document.getElementById('badge-4-2');
+                if (badge2) {
+                    badge2.textContent = '進行中';
+                    badge2.classList.remove('locked');
+                }
+
+                showToast('🎉 任務一完成！任務二隨身碟容量計算已解鎖！', 'success');
+            } else {
+                playErrorSound();
+                input.classList.add('shake');
+                setTimeout(() => input.classList.remove('shake'), 420);
+                showToast(`❌ 算錯囉！提示：1 Byte = 8 bits，把 ${state.targetBytes} 乘以 8 試試看。`, 'error');
+            }
+        }
+
+        function checkTask4_2() {
+            const input = document.getElementById('input-4-2');
+            if (!input) return;
+            const userVal = parseInt(input.value, 10);
+            const expected = Math.floor(1024 / state.targetPhotoMB);
+
+            if (userVal === expected) {
+                playSuccessSound();
+                state.task4_2Done = true;
+
+                const fb = document.getElementById('feedback-4-2');
+                if (fb) {
+                    fb.innerHTML = `🎉 <strong>計算完全正確！</strong> <span class="mono">1024 MB ÷ ${state.targetPhotoMB} MB = ${expected} 張照片</span>`;
+                    fb.classList.add('show');
+                }
+
+                const badge2 = document.getElementById('badge-4-2');
+                if (badge2) {
+                    badge2.textContent = '✅ 已完成';
+                    badge2.classList.add('done');
+                }
+
+                input.disabled = true;
+                const btn2 = document.getElementById('btn-check-4-2');
+                if (btn2) btn2.disabled = true;
+
+                const nextWrap = document.getElementById('next-stage-4-wrap');
+                if (nextWrap) nextWrap.style.display = 'block';
+
+                updateNavUI();
+                showToast('🏆 恭喜全數破關！快去領取破關證書並傳送成績吧！', 'success');
+            } else {
+                playErrorSound();
+                input.classList.add('shake');
+                setTimeout(() => input.classList.remove('shake'), 420);
+                showToast(`❌ 張數不對喔！提示：1 GB = 1024 MB，把 1024 除以 ${state.targetPhotoMB} 試試看。`, 'error');
+            }
+        }
+
+        // ==================== 8. 破關證書、Google 表單送出與重置 ====================
+        function showCertificate() {
+            playWinSound();
+            document.querySelectorAll('.stage-section').forEach(sec => sec.classList.remove('active'));
+            const certSec = document.getElementById('section-cert');
+            if (certSec) certSec.classList.add('active');
+
+            const timeEl = document.getElementById('cert-time');
+            const t1El = document.getElementById('cert-t1');
+            const t2El = document.getElementById('cert-t2');
+            if (timeEl) timeEl.textContent = formatTime(state.seconds);
+            if (t1El) t1El.textContent = state.target1;
+            if (t2El) t2El.textContent = state.target2;
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function updateCertDisplay() {
+            const display = document.getElementById('cert-display-name');
+            if (!display) return;
+            const cls = (document.getElementById('student-class-input')?.value || '').trim();
+            const seat = (document.getElementById('student-seat-input')?.value || '').trim();
+            const name = (document.getElementById('student-name-input')?.value || '').trim();
+
+            const prefix = [cls ? `${cls}班` : '', seat ? `${seat}號` : ''].filter(Boolean).join(' ');
+            const fullTitle = [prefix, name].filter(Boolean).join(' ');
+            display.textContent = fullTitle.length > 0 ? fullTitle : '二進位特攻隊員';
+        }
+
+        function submitScoreToGoogleForm() {
+            const cls = (document.getElementById('student-class-input')?.value || '').trim();
+            const seat = (document.getElementById('student-seat-input')?.value || '').trim();
+            const name = (document.getElementById('student-name-input')?.value || '').trim();
+
+            if (!cls || !seat || !name) {
+                playErrorSound();
+                showToast('⚠️ 請先完整輸入「班級」、「座號」與「姓名」再傳送成績喔！', 'error');
+                return;
+            }
+
+            if (GOOGLE_FORM_CONFIG.formActionUrl.includes('你的表單ID')) {
+                playErrorSound();
+                showToast('⚠️ 老師尚未設定 Google 表單網址，請先截圖證書交作業！', 'error');
+                return;
+            }
+
+            const btn = document.getElementById('btn-submit-score');
+            const statusBox = document.getElementById('submit-status-box');
+            if (btn) {
+                btn.disabled = true;
+                btn.textContent = '⏳ 成績傳送中...';
+            }
+
+            // 準備要背景送出的表單資料
+            const formData = new URLSearchParams();
+            formData.append(GOOGLE_FORM_CONFIG.fields.className, cls);
+            formData.append(GOOGLE_FORM_CONFIG.fields.seatNumber, seat);
+            formData.append(GOOGLE_FORM_CONFIG.fields.studentName, name);
+            formData.append(GOOGLE_FORM_CONFIG.fields.progress, '4 / 4 全破');
+            formData.append(GOOGLE_FORM_CONFIG.fields.clearTime, formatTime(state.seconds));
+
+            // 使用 no-cors 模式背景靜默送出至 Google 表單
+            fetch(GOOGLE_FORM_CONFIG.formActionUrl, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: formData.toString()
+            })
+            .then(() => {
+                playWinSound();
+                if (btn) {
+                    btn.textContent = '✅ 成績已成功登錄！';
+                }
+                if (statusBox) {
+                    statusBox.innerHTML = `🎉 <strong>成績登錄成功！</strong>（${cls}班 ${seat}號 ${name} ・ 通關時間 <span class="mono">${formatTime(state.seconds)}</span>）已自動寫入老師的試算表。`;
+                    statusBox.classList.add('show');
+                }
+                showToast('📤 成績已自動登錄至老師的 Google 表單！', 'success');
+            })
+            .catch(() => {
+                playErrorSound();
+                if (btn) {
+                    btn.disabled = false;
+                    btn.textContent = '📤 重新傳送成績';
+                }
+                showToast('❌ 網路連線異常，請再試一次或直接截圖證書！', 'error');
+            });
+        }
+
+        function resetGame() {
+            playClickSound(true);
+            state.currentStage = 1;
+            state.unlockedStage = 1;
+            state.task1_1Done = false;
+            state.task1_2Done = false;
+            state.stage2Done = false;
+            state.stage3Done = false;
+            state.task4_1Done = false;
+            state.task4_2Done = false;
+            state.bulbs1_2 = [0, 0, 0, 0, 0];
+            state.pixelGrid = [
+                [0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0]
+            ];
+            state.seconds = 0;
+
+            const timerEl = document.getElementById('timer-display');
+            if (timerEl) timerEl.textContent = '00:00';
+
+            // 重置成績傳送按鈕狀態
+            const btnSubmit = document.getElementById('btn-submit-score');
+            if (btnSubmit) {
+                btnSubmit.disabled = false;
+                btnSubmit.textContent = '📤 傳送成績至老師表單';
+            }
+            const statusBox = document.getElementById('submit-status-box');
+            if (statusBox) statusBox.classList.remove('show');
+
+            // 重置第一關 UI
+            generateRandomTargets();
+            const input1 = document.getElementById('input-1-1');
+            if (input1) {
+                input1.value = '';
+                input1.disabled = false;
+            }
+            const btn1 = document.getElementById('btn-check-1-1');
+            if (btn1) btn1.disabled = false;
+            const badge1 = document.getElementById('badge-1-1');
+            if (badge1) {
+                badge1.textContent = '進行中';
+                badge1.classList.remove('done');
+            }
+            const fb1 = document.getElementById('feedback-1-1');
+            if (fb1) fb1.classList.remove('show');
+
+            const card2 = document.getElementById('card-1-2');
+            if (card2) {
+                card2.classList.add('locked-panel');
+                card2.classList.remove('highlight-amber');
+            }
+            const badge2 = document.getElementById('badge-1-2');
+            if (badge2) {
+                badge2.textContent = '🔒 需先完成任務一';
+                badge2.classList.remove('done');
+                badge2.classList.add('locked');
+            }
+            const input12 = document.getElementById('input-1-2');
+            if (input12) {
+                input12.value = '';
+                input12.disabled = false;
+            }
+            const btn2 = document.getElementById('btn-check-1-2');
+            if (btn2) btn2.disabled = false;
+            const fb2 = document.getElementById('feedback-1-2');
+            if (fb2) fb2.classList.remove('show');
+            const next1 = document.getElementById('next-stage-1-wrap');
+            if (next1) next1.style.display = 'none';
+
+            // 重置第二關 UI
+            [0, 1, 2, 3].forEach(i => {
+                const el = document.getElementById(`alien-${i}`);
+                if (el) {
+                    el.value = '';
+                    el.disabled = false;
+                    el.classList.remove('correct');
+                }
+            });
+            const badgeStage2 = document.getElementById('badge-2');
+            if (badgeStage2) {
+                badgeStage2.textContent = '進行中';
+                badgeStage2.classList.remove('done');
+            }
+            const btnStage2 = document.getElementById('btn-check-2');
+            if (btnStage2) btnStage2.disabled = false;
+            const fbStage2 = document.getElementById('feedback-2');
+            if (fbStage2) fbStage2.classList.remove('show');
+            const next2 = document.getElementById('next-stage-2-wrap');
+            if (next2) next2.style.display = 'none';
+
+            // 重置第三關 UI
+            const fbStage3 = document.getElementById('feedback-3');
+            if (fbStage3) fbStage3.classList.remove('show');
+            const next3 = document.getElementById('next-stage-3-wrap');
+            if (next3) next3.style.display = 'none';
+
+            // 重置第四關 UI
+            const input41 = document.getElementById('input-4-1');
+            if (input41) {
+                input41.value = '';
+                input41.disabled = false;
+            }
+            const btn41 = document.getElementById('btn-check-4-1');
+            if (btn41) btn41.disabled = false;
+            const badge41 = document.getElementById('badge-4-1');
+            if (badge41) {
+                badge41.textContent = '進行中';
+                badge41.classList.remove('done');
+            }
+            const fb41 = document.getElementById('feedback-4-1');
+            if (fb41) fb41.classList.remove('show');
+
+            const card42 = document.getElementById('card-4-2');
+            if (card42) {
+                card42.classList.add('locked-panel');
+                card42.classList.remove('highlight-amber');
+            }
+            const badge42 = document.getElementById('badge-4-2');
+            if (badge42) {
+                badge42.textContent = '🔒 需先完成任務一';
+                badge42.classList.remove('done');
+                badge42.classList.add('locked');
+            }
+            const input42 = document.getElementById('input-4-2');
+            if (input42) {
+                input42.value = '';
+                input42.disabled = false;
+            }
+            const btn42 = document.getElementById('btn-check-4-2');
+            if (btn42) btn42.disabled = false;
+            const fb42 = document.getElementById('feedback-4-2');
+            if (fb42) fb42.classList.remove('show');
+            const next4 = document.getElementById('next-stage-4-wrap');
+            if (next4) next4.style.display = 'none';
+
+            renderBulbs1_1();
+            renderBulbs1_2();
+            renderStage3();
+            switchStage(1);
+            showToast('🔄 已重新抽出新題目，挑戰開始！', 'info');
+        }
+
+        // ==================== 9. 安全初始化入口 ====================
+        function initApp() {
+            generateRandomTargets();
+            renderBulbs1_1();
+            renderBulbs1_2();
+            initCipherTable();
+            initAlienInputs();
+            renderStage3();
+            updateNavUI();
+            startTimer();
+
+            // 支援第一關與第四關輸入框按 Enter 送出
+            const input1 = document.getElementById('input-1-1');
+            if (input1) {
+                input1.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') checkTask1_1();
+                });
+            }
+
+            const input12 = document.getElementById('input-1-2');
+            if (input12) {
+                input12.addEventListener('input', (e) => {
+                    e.target.value = e.target.value.replace(/[^01]/g, '');
+                });
+                input12.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') checkTask1_2();
+                });
+            }
+
+            const input41 = document.getElementById('input-4-1');
+            if (input41) {
+                input41.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') checkTask4_1();
+                });
+            }
+
+            const input42 = document.getElementById('input-4-2');
+            if (input42) {
+                input42.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') checkTask4_2();
+                });
+            }
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initApp);
+        } else {
+            initApp();
+        }
+    </script>
+</body>
+</html>
