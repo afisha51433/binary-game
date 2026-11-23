@@ -146,11 +146,50 @@
         }
 
         /* 關卡進度導覽列 */
-        .stage-nav {
+        .nav-group-wrap {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            margin-bottom: 1.75rem;
+        }
+
+        .nav-group-box {
+            background: rgba(19, 27, 46, 0.55);
+            border: 1px solid var(--border-subtle);
+            border-radius: 16px;
+            padding: 0.75rem;
+        }
+
+        .nav-group-box.advanced {
+            border-color: rgba(255, 183, 3, 0.35);
+            background: linear-gradient(135deg, rgba(255, 183, 3, 0.06), rgba(19, 27, 46, 0.65));
+        }
+
+        .nav-group-label {
+            font-size: 0.78rem;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: var(--neon-cyan);
+        }
+
+        .nav-group-box.advanced .nav-group-label {
+            color: var(--amber-gold);
+        }
+
+        .stage-nav-basic {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 0.65rem;
-            margin-bottom: 1.75rem;
+            gap: 0.5rem;
+        }
+
+        .stage-nav-adv {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.55rem;
         }
 
         .nav-step {
@@ -174,6 +213,12 @@
             box-shadow: 0 0 20px rgba(0, 240, 255, 0.12);
         }
 
+        .nav-step.adv-step.active {
+            border-color: var(--amber-gold);
+            background: linear-gradient(135deg, rgba(255, 183, 3, 0.15), var(--bg-card));
+            box-shadow: 0 0 20px rgba(255, 183, 3, 0.15);
+        }
+
         .nav-step.completed {
             border-color: var(--emerald);
             color: var(--text-main);
@@ -195,46 +240,52 @@
         .nav-step-title {
             font-size: 0.95rem;
             font-weight: 700;
+            color: #fff;
         }
 
-        /* 提示橫幅 Toast */
+        /* 提示訊息橫幅 */
         .toast-banner {
             position: fixed;
-            bottom: 1.5rem;
+            top: 76px;
             left: 50%;
-            transform: translateX(-50%) translateY(120%);
+            transform: translateX(-50%) translateY(-10px);
             background: #1e293b;
             border: 1.5px solid var(--neon-cyan);
             color: #fff;
-            padding: 0.85rem 1.4rem;
-            border-radius: 14px;
+            padding: 0.7rem 1.25rem;
+            border-radius: 12px;
+            font-size: 0.92rem;
             font-weight: 600;
-            font-size: 0.95rem;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.55);
             z-index: 100;
-            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.25s ease;
             max-width: 92vw;
             text-align: center;
         }
 
         .toast-banner.show {
+            opacity: 1;
             transform: translateX(-50%) translateY(0);
-        }
-
-        .toast-banner.success {
-            border-color: var(--emerald);
-            background: #064e3b;
         }
 
         .toast-banner.error {
             border-color: var(--rose);
-            background: #4c0519;
+            background: #2c121b;
+            color: #fecdd3;
         }
 
-        /* 關卡卡片區塊 */
+        .toast-banner.success {
+            border-color: var(--emerald);
+            background: #0d2b22;
+            color: #a7f3d0;
+        }
+
+        /* 關卡區塊 */
         .stage-section {
             display: none;
-            animation: fadeIn 0.35s ease;
+            animation: fadeIn 0.3s ease;
         }
 
         .stage-section.active {
@@ -248,42 +299,21 @@
 
         @keyframes shake {
             0%, 100% { transform: translateX(0); }
-            20%, 60% { transform: translateX(-6px); }
-            40%, 80% { transform: translateX(6px); }
+            20% { transform: translateX(-7px); }
+            40% { transform: translateX(7px); }
+            60% { transform: translateX(-5px); }
+            80% { transform: translateX(5px); }
         }
 
         .shake {
             animation: shake 0.4s ease;
         }
 
-        .card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-subtle);
-            border-radius: 20px;
-            padding: 1.5rem;
-            margin-bottom: 1.25rem;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
-        }
-
-        .card.highlight-cyan {
-            border-color: rgba(0, 240, 255, 0.45);
-        }
-
-        .card.highlight-amber {
-            border-color: rgba(255, 183, 3, 0.45);
-        }
-
-        .card.locked-panel {
-            opacity: 0.45;
-            pointer-events: none;
-            filter: grayscale(0.4);
-        }
-
         .stage-header {
             display: flex;
             flex-wrap: wrap;
-            align-items: flex-start;
             justify-content: space-between;
+            align-items: flex-start;
             gap: 1rem;
             margin-bottom: 1.25rem;
         }
@@ -291,17 +321,14 @@
         .stage-tag {
             display: inline-block;
             font-size: 0.75rem;
-            font-weight: 800;
-            padding: 0.25rem 0.7rem;
-            border-radius: 999px;
-            background: var(--neon-cyan-dim);
+            font-weight: 700;
             color: var(--neon-cyan);
-            border: 1px solid rgba(0, 240, 255, 0.35);
-            margin-bottom: 0.4rem;
+            letter-spacing: 0.1em;
+            margin-bottom: 0.25rem;
         }
 
         .stage-title {
-            font-size: 1.45rem;
+            font-size: 1.55rem;
             font-weight: 800;
             color: #fff;
         }
@@ -309,20 +336,44 @@
         .stage-desc {
             color: var(--text-muted);
             font-size: 0.95rem;
-            margin-top: 0.25rem;
+            margin-top: 0.35rem;
+            max-width: 680px;
+        }
+
+        /* 卡片與按鈕 */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 20px;
+            padding: 1.5rem;
+            margin-bottom: 1.25rem;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
+        }
+
+        .card.highlight-cyan {
+            border-color: rgba(0, 240, 255, 0.35);
+        }
+
+        .card.highlight-amber {
+            border-color: rgba(255, 183, 3, 0.4);
+        }
+
+        .card.locked-panel {
+            opacity: 0.5;
+            pointer-events: none;
         }
 
         .task-header {
             display: flex;
             flex-wrap: wrap;
-            align-items: center;
             justify-content: space-between;
+            align-items: center;
             gap: 0.5rem;
-            margin-bottom: 0.85rem;
+            margin-bottom: 1rem;
         }
 
         .task-title {
-            font-size: 1.1rem;
+            font-size: 1.12rem;
             font-weight: 700;
             color: var(--neon-cyan);
             display: flex;
@@ -331,41 +382,39 @@
         }
 
         .task-badge {
-            font-size: 0.78rem;
+            font-size: 0.75rem;
             font-weight: 700;
-            padding: 0.25rem 0.75rem;
+            padding: 0.25rem 0.65rem;
             border-radius: 999px;
-            background: var(--amber-dim);
-            color: var(--amber-gold);
+            background: var(--neon-cyan-dim);
+            color: var(--neon-cyan);
+            border: 1px solid rgba(0, 240, 255, 0.3);
         }
 
         .task-badge.done {
             background: var(--emerald-dim);
             color: var(--emerald);
+            border-color: rgba(16, 185, 129, 0.4);
         }
 
         .task-badge.locked {
             background: rgba(148, 163, 184, 0.15);
             color: var(--text-muted);
+            border-color: var(--border-subtle);
         }
 
-        /* 按鈕系統 */
         .btn {
-            border: none;
-            border-radius: 12px;
-            padding: 0.7rem 1.35rem;
-            font-size: 0.95rem;
-            font-weight: 800;
-            cursor: pointer;
-            transition: all 0.2s;
             display: inline-flex;
             align-items: center;
             justify-content: center;
             gap: 0.45rem;
-        }
-
-        .btn:active {
-            transform: scale(0.97);
+            padding: 0.7rem 1.35rem;
+            border-radius: 12px;
+            font-size: 0.98rem;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
         }
 
         .btn:disabled {
@@ -374,40 +423,292 @@
         }
 
         .btn-cyan {
-            background: linear-gradient(135deg, #00f0ff, #0284c7);
-            color: #06121e;
-            box-shadow: 0 4px 15px rgba(0, 240, 255, 0.25);
+            background: var(--neon-cyan);
+            color: #06131f;
+            box-shadow: 0 4px 15px rgba(0, 240, 255, 0.3);
         }
 
         .btn-cyan:hover:not(:disabled) {
-            filter: brightness(1.1);
+            background: #67e8f9;
+            transform: translateY(-1px);
         }
 
         .btn-amber {
-            background: linear-gradient(135deg, #ffb703, #f97316);
-            color: #1a0f00;
-            box-shadow: 0 4px 15px rgba(255, 183, 3, 0.25);
+            background: var(--amber-gold);
+            color: #1c1202;
+            box-shadow: 0 4px 15px rgba(255, 183, 3, 0.3);
         }
 
         .btn-amber:hover:not(:disabled) {
-            filter: brightness(1.08);
+            background: #fcd34d;
+            transform: translateY(-1px);
         }
 
         .btn-emerald {
-            background: linear-gradient(135deg, #10b981, #059669);
-            color: #022c22;
-            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.25);
+            background: var(--emerald);
+            color: #032117;
+            box-shadow: 0 4px 18px rgba(16, 185, 129, 0.35);
+            font-size: 1.05rem;
+            padding: 0.85rem 1.75rem;
+        }
+
+        .btn-emerald:hover:not(:disabled) {
+            background: #34d399;
+            transform: translateY(-1px);
         }
 
         .btn-outline {
             background: var(--bg-panel);
-            border: 1px solid var(--border-subtle);
+            border: 1.5px solid var(--border-subtle);
             color: var(--text-main);
-            padding: 0.5rem 0.95rem;
-            font-size: 0.85rem;
+            padding: 0.5rem 1rem;
+            font-size: 0.88rem;
         }
 
-        .btn-outline:hover {
+        .btn-outline:hover:not(:disabled) {
+            border-color: var(--neon-cyan);
+            color: var(--neon-cyan);
+        }
+
+        /* 第三關：彩色像素畫 */
+        .pixel-workspace {
+            display: grid;
+            grid-template-columns: 1.15fr 0.85fr;
+            gap: 1.5rem;
+            align-items: center;
+            margin-top: 1rem;
+        }
+
+        .rgb-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.45rem;
+            margin-bottom: 0.9rem;
+            background: var(--bg-panel);
+            padding: 0.65rem 0.85rem;
+            border-radius: 12px;
+            border: 1px solid var(--border-subtle);
+            font-size: 0.78rem;
+        }
+
+        .rgb-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 6px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+        }
+
+        .rgb-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 3px;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        .target-rows-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.55rem;
+        }
+
+        .target-row-item {
+            background: var(--bg-panel);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            padding: 0.55rem 0.8rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.5rem;
+            font-size: 0.88rem;
+            transition: all 0.2s;
+        }
+
+        .target-row-item.matched {
+            border-color: var(--emerald);
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .row-code {
+            font-size: 0.95rem;
+            font-weight: 800;
+            letter-spacing: 0.06em;
+            color: var(--neon-cyan);
+        }
+
+        .row-status {
+            font-size: 0.76rem;
+            font-weight: 700;
+            padding: 0.2rem 0.55rem;
+            border-radius: 999px;
+            background: rgba(148, 163, 184, 0.15);
+            color: var(--text-muted);
+            white-space: nowrap;
+        }
+
+        .row-status.ok {
+            background: var(--emerald-dim);
+            color: var(--emerald);
+        }
+
+        .palette-bar {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 0.45rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .palette-btn {
+            padding: 0.35rem 0.6rem;
+            border-radius: 8px;
+            border: 2px solid var(--border-subtle);
+            background: var(--bg-panel);
+            color: #fff;
+            font-size: 0.75rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            transition: all 0.15s;
+        }
+
+        .palette-btn.selected {
+            border-color: var(--neon-cyan);
+            box-shadow: 0 0 10px rgba(0, 240, 255, 0.35);
+            transform: translateY(-2px);
+        }
+
+        .pixel-board {
+            background: var(--bg-panel);
+            border: 2px solid var(--border-subtle);
+            border-radius: 18px;
+            padding: 1rem;
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 0.35rem;
+            max-width: 340px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        .pixel-board.bw-board {
+            grid-template-columns: repeat(5, 1fr);
+            max-width: 310px;
+            gap: 0.45rem;
+        }
+
+        .pixel-cell.bw-off {
+            background: #182238;
+            color: #64748b;
+            text-shadow: none;
+        }
+
+        .pixel-cell.bw-on {
+            background: linear-gradient(135deg, #ff2a85, #f43f5e);
+            border-color: #fda4af;
+            color: #ffffff;
+            box-shadow: 0 0 12px rgba(255, 42, 133, 0.4);
+        }
+
+        .pixel-cell {
+            aspect-ratio: 1 / 1;
+            border-radius: 8px;
+            border: 1.5px solid rgba(255, 255, 255, 0.22);
+            font-weight: 800;
+            font-size: 0.68rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s;
+            user-select: none;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.85);
+            color: #fff;
+        }
+
+        .pixel-cell:hover {
+            border-color: var(--neon-cyan);
+            transform: scale(1.04);
+        }
+
+        /* 進階 02：無聲視覺版太空聲波解碼器 */
+        .wave-workspace {
+            background: var(--bg-panel);
+            border: 1px solid var(--border-subtle);
+            border-radius: 16px;
+            padding: 1.25rem 0.85rem;
+            margin: 1rem 0;
+        }
+
+        .wave-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 0.55rem;
+            max-width: 720px;
+            margin: 0 auto;
+        }
+
+        .wave-col {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            padding: 0.65rem 0.35rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.45rem;
+        }
+
+        .wave-bar-track {
+            width: 36px;
+            height: 124px;
+            background: #0b0f19;
+            background-image: repeating-linear-gradient(
+                to top,
+                transparent,
+                transparent 14.5px,
+                rgba(148, 163, 184, 0.18) 15.5px
+            );
+            border: 1px solid #26334d;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 3px;
+            cursor: pointer;
+        }
+
+        .wave-bar-fill {
+            width: 100%;
+            background: linear-gradient(180deg, #00f0ff, #0284c7);
+            border-radius: 5px;
+            transition: height 0.2s ease;
+            box-shadow: 0 0 10px rgba(0, 240, 255, 0.4);
+        }
+
+        .wave-step-btns {
+            display: flex;
+            gap: 0.3rem;
+        }
+
+        .wave-mini-btn {
+            width: 26px;
+            height: 26px;
+            border-radius: 6px;
+            border: 1px solid var(--border-subtle);
+            background: var(--bg-panel);
+            color: #fff;
+            font-weight: 800;
+            cursor: pointer;
+            font-size: 0.95rem;
+        }
+
+        .wave-mini-btn:hover {
             border-color: var(--neon-cyan);
             color: var(--neon-cyan);
         }
@@ -647,100 +948,6 @@
             color: #6ee7b7;
         }
 
-        /* 第三關：像素畫 */
-        .pixel-workspace {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1.5rem;
-            align-items: center;
-            margin-top: 1rem;
-        }
-
-        .target-rows-list {
-            display: flex;
-            flex-direction: column;
-            gap: 0.6rem;
-        }
-
-        .target-row-item {
-            background: var(--bg-panel);
-            border: 1px solid var(--border-subtle);
-            border-radius: 12px;
-            padding: 0.65rem 0.9rem;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            font-size: 0.92rem;
-            transition: all 0.2s;
-        }
-
-        .target-row-item.matched {
-            border-color: var(--emerald);
-            background: rgba(16, 185, 129, 0.1);
-        }
-
-        .row-code {
-            font-size: 1.1rem;
-            font-weight: 800;
-            letter-spacing: 0.15em;
-            color: var(--neon-cyan);
-        }
-
-        .row-status {
-            font-size: 0.8rem;
-            font-weight: 700;
-            padding: 0.2rem 0.6rem;
-            border-radius: 999px;
-            background: rgba(148, 163, 184, 0.15);
-            color: var(--text-muted);
-        }
-
-        .row-status.ok {
-            background: var(--emerald-dim);
-            color: var(--emerald);
-        }
-
-        .pixel-board {
-            background: var(--bg-panel);
-            border: 2px solid var(--border-subtle);
-            border-radius: 18px;
-            padding: 1rem;
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 0.45rem;
-            max-width: 320px;
-            width: 100%;
-            margin: 0 auto;
-        }
-
-        .pixel-cell {
-            aspect-ratio: 1 / 1;
-            border-radius: 10px;
-            background: #182238;
-            border: 1.5px solid #2e3d5c;
-            color: #64748b;
-            font-weight: 800;
-            font-size: 1rem;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.15s;
-            user-select: none;
-        }
-
-        .pixel-cell:hover {
-            border-color: var(--neon-cyan);
-        }
-
-        .pixel-cell.active {
-            background: linear-gradient(135deg, #ff2a85, #e11d48);
-            border-color: #fda4af;
-            color: #fff;
-            box-shadow: 0 0 14px rgba(255, 42, 133, 0.55);
-            transform: scale(1.03);
-        }
-
         /* 破關證書 */
         .cert-card {
             background: linear-gradient(145deg, #131c31, #0b1120);
@@ -844,26 +1051,29 @@
 
         .cert-stats strong {
             color: #fff;
-            font-size: 1.1rem;
         }
 
         footer {
             text-align: center;
-            padding: 1rem;
-            font-size: 0.78rem;
-            color: #64748b;
-            border-top: 1px solid rgba(35, 48, 77, 0.6);
+            padding: 1.5rem 1rem;
+            color: var(--text-muted);
+            font-size: 0.82rem;
+            border-top: 1px solid var(--border-subtle);
         }
 
-        @media (max-width: 680px) {
-            .stage-nav {
-                grid-template-columns: repeat(2, 1fr);
+        @media (max-width: 760px) {
+            .stage-nav-basic,
+            .stage-nav-adv {
+                grid-template-columns: 1fr;
             }
             .signals-grid {
                 grid-template-columns: repeat(2, 1fr);
             }
             .pixel-workspace {
                 grid-template-columns: 1fr;
+            }
+            .wave-grid {
+                grid-template-columns: repeat(3, 1fr);
             }
             .bulb-circle {
                 width: 48px;
@@ -886,8 +1096,8 @@
                 </div>
             </div>
             <div class="header-controls">
-                <div class="status-pill mono" title="目前關卡進度">
-                    🚩 <span id="progress-display">1 / 4</span>
+                <div class="status-pill mono" title="已破關數">
+                    🚩 <span id="progress-display">0 / 6 關</span>
                 </div>
                 <div class="status-pill mono" title="挑戰計時">
                     ⏱️ <span id="timer-display">00:00</span>
@@ -903,39 +1113,73 @@
     <div id="toast" class="toast-banner" role="alert"></div>
 
     <main>
-        <!-- 關卡進度導覽列 -->
-        <nav class="stage-nav" aria-label="關卡進度">
-            <button type="button" id="nav-stage-1" class="nav-step active" onclick="switchStage(1)">
-                <div class="nav-step-top">
-                    <span>STAGE 01</span>
-                    <span id="nav-status-1">進行中</span>
+        <!-- 關卡進度導覽列（分為基礎關卡區與自由進階挑戰區） -->
+        <nav class="nav-group-wrap" aria-label="關卡進度">
+            <!-- 基礎關卡區（保留原本 1~4 關） -->
+            <div class="nav-group-box">
+                <div class="nav-group-label">
+                    <span>📘 基礎任務區（第 1～4 關・循序解鎖）</span>
+                    <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 500;">完成前一關解鎖下一關</span>
                 </div>
-                <div class="nav-step-title">💡 密室電燈密碼</div>
-            </button>
+                <div class="stage-nav-basic">
+                    <button type="button" id="nav-stage-1" class="nav-step active" onclick="switchStage(1)">
+                        <div class="nav-step-top">
+                            <span>STAGE 01</span>
+                            <span id="nav-status-1">進行中</span>
+                        </div>
+                        <div class="nav-step-title">💡 密室電燈密碼</div>
+                    </button>
 
-            <button type="button" id="nav-stage-2" class="nav-step locked" onclick="switchStage(2)">
-                <div class="nav-step-top">
-                    <span>STAGE 02</span>
-                    <span id="nav-status-2">🔒 未解鎖</span>
-                </div>
-                <div class="nav-step-title">🛸 外星人的秘密電報</div>
-            </button>
+                    <button type="button" id="nav-stage-2" class="nav-step locked" onclick="switchStage(2)">
+                        <div class="nav-step-top">
+                            <span>STAGE 02</span>
+                            <span id="nav-status-2">🔒 未解鎖</span>
+                        </div>
+                        <div class="nav-step-title">🛸 外星人電報</div>
+                    </button>
 
-            <button type="button" id="nav-stage-3" class="nav-step locked" onclick="switchStage(3)">
-                <div class="nav-step-top">
-                    <span>STAGE 03</span>
-                    <span id="nav-status-3">🔒 未解鎖</span>
-                </div>
-                <div class="nav-step-title">👾 消失的像素畫</div>
-            </button>
+                    <button type="button" id="nav-stage-3" class="nav-step locked" onclick="switchStage(3)">
+                        <div class="nav-step-top">
+                            <span>STAGE 03</span>
+                            <span id="nav-status-3">🔒 未解鎖</span>
+                        </div>
+                        <div class="nav-step-title">👾 黑白像素畫</div>
+                    </button>
 
-            <button type="button" id="nav-stage-4" class="nav-step locked" onclick="switchStage(4)">
-                <div class="nav-step-top">
-                    <span>STAGE 04</span>
-                    <span id="nav-status-4">🔒 未解鎖</span>
+                    <button type="button" id="nav-stage-4" class="nav-step locked" onclick="switchStage(4)">
+                        <div class="nav-step-top">
+                            <span>STAGE 04</span>
+                            <span id="nav-status-4">🔒 未解鎖</span>
+                        </div>
+                        <div class="nav-step-title">💾 太空艙硬碟救援</div>
+                    </button>
                 </div>
-                <div class="nav-step-title">💾 太空艙硬碟救援</div>
-            </button>
+            </div>
+
+            <!-- 進階挑戰區（隨時自由跳關單獨遊玩） -->
+            <div class="nav-group-box advanced">
+                <div class="nav-group-label">
+                    <span>🚀 進階挑戰區（自由選關・免解鎖直接玩）</span>
+                    <span style="font-size: 0.72rem; color: #fde68a; font-weight: 500;">可直接點擊任一關單獨練習！</span>
+                </div>
+                <div class="stage-nav-adv">
+                    <button type="button" id="nav-stage-5" class="nav-step adv-step" onclick="switchStage(5)">
+                        <div class="nav-step-top">
+                            <span style="color: var(--amber-gold);">ADV 01</span>
+                            <span id="nav-status-5">⚡ 自由挑戰</span>
+                        </div>
+                        <div class="nav-step-title">🎨 彩色像素畫 (RGB)</div>
+                    </button>
+
+                    <button type="button" id="nav-stage-6" class="nav-step adv-step" onclick="switchStage(6)">
+                        <div class="nav-step-top">
+                            <span style="color: var(--amber-gold);">ADV 02</span>
+                            <span id="nav-status-6">⚡ 自由挑戰</span>
+                        </div>
+                        <div class="nav-step-title">📈 太空聲波解碼 (視覺版)</div>
+                    </button>
+                </div>
+            </div>
         </nav>
 
         <!-- ==================== 第一關：密室電燈密碼 ==================== -->
@@ -1036,33 +1280,36 @@
                     <div class="task-title">破譯 4 組外星訊號單字</div>
                     <span id="badge-2" class="task-badge">進行中</span>
                 </div>
+                <p style="color: var(--text-muted); font-size: 0.92rem; text-align: center;">
+                    將以下 4 組 5 位元二進位訊號翻譯成 4 個英文字母（提示：每個字母框輸入 1 個英文字母）：
+                </p>
 
                 <div class="signals-grid">
                     <div class="signal-card">
-                        <div style="font-size: 0.78rem; color: var(--text-muted);">訊號 #1</div>
+                        <span style="font-size: 0.75rem; color: var(--text-muted);">訊號 #1</span>
                         <div class="signal-bits mono">00011</div>
-                        <input type="text" maxlength="1" class="letter-input mono" id="alien-0" data-idx="0" aria-label="第1個字母">
+                        <input type="text" id="alien-0" class="letter-input mono" maxlength="1" placeholder="?" aria-label="第1個字母">
                     </div>
                     <div class="signal-card">
-                        <div style="font-size: 0.78rem; color: var(--text-muted);">訊號 #2</div>
+                        <span style="font-size: 0.75rem; color: var(--text-muted);">訊號 #2</span>
                         <div class="signal-bits mono">01111</div>
-                        <input type="text" maxlength="1" class="letter-input mono" id="alien-1" data-idx="1" aria-label="第2個字母">
+                        <input type="text" id="alien-1" class="letter-input mono" maxlength="1" placeholder="?" aria-label="第2個字母">
                     </div>
                     <div class="signal-card">
-                        <div style="font-size: 0.78rem; color: var(--text-muted);">訊號 #3</div>
+                        <span style="font-size: 0.75rem; color: var(--text-muted);">訊號 #3</span>
                         <div class="signal-bits mono">00100</div>
-                        <input type="text" maxlength="1" class="letter-input mono" id="alien-2" data-idx="2" aria-label="第3個字母">
+                        <input type="text" id="alien-2" class="letter-input mono" maxlength="1" placeholder="?" aria-label="第3個字母">
                     </div>
                     <div class="signal-card">
-                        <div style="font-size: 0.78rem; color: var(--text-muted);">訊號 #4</div>
+                        <span style="font-size: 0.75rem; color: var(--text-muted);">訊號 #4</span>
                         <div class="signal-bits mono">00101</div>
-                        <input type="text" maxlength="1" class="letter-input mono" id="alien-3" data-idx="3" aria-label="第4個字母">
+                        <input type="text" id="alien-3" class="letter-input mono" maxlength="1" placeholder="?" aria-label="第4個字母">
                     </div>
                 </div>
 
                 <div class="input-row">
                     <button type="button" id="btn-check-2" class="btn btn-cyan" onclick="checkStage2()">
-                        📡 破譯電報
+                        📡 傳送破譯單字
                     </button>
                 </div>
 
@@ -1070,41 +1317,41 @@
 
                 <div id="next-stage-2-wrap" style="display: none; text-align: center; margin-top: 1.25rem;">
                     <button type="button" class="btn btn-emerald" onclick="switchStage(3)">
-                        🚀 前往第三關：消失的像素畫 →
+                        🚀 前往第三關：消失的黑白像素畫 →
                     </button>
                 </div>
             </div>
         </section>
 
-        <!-- ==================== 第三關：消失的像素畫 ==================== -->
+        <!-- ==================== 第三關：黑白像素畫 ==================== -->
         <section id="section-stage-3" class="stage-section">
             <div class="stage-header">
                 <div>
-                    <span class="stage-tag mono">STAGE 03 // PIXEL MATRIX</span>
-                    <h2 class="stage-title">第三關：消失的像素畫</h2>
-                    <p class="stage-desc">電腦螢幕上的圖片是由無數個「像素 (Pixel)」組成的。請依據左側每一列的 5 位元代碼（<strong>0 = 暗、1 = 亮</strong>），在右側 5×5 畫布點擊還原圖案！</p>
+                    <span class="stage-tag mono">STAGE 03 // BINARY PIXELS</span>
+                    <h2 class="stage-title">第三關：消失的黑白像素畫</h2>
+                    <p class="stage-desc">電腦螢幕上的圖片是由一顆顆像素（Pixels）組成的。點擊右側 5×5 方格（<strong>0 = 留白、1 = 塗色</strong>），讓每一列符合左側的二進位代碼！</p>
                 </div>
-                <button type="button" class="btn btn-outline" onclick="clearPixelGrid()">
+                <button type="button" class="btn btn-outline" onclick="clearBwPixelGrid()">
                     🧹 清空畫布
                 </button>
             </div>
 
             <div class="card highlight-cyan">
                 <div class="pixel-workspace">
-                    <!-- 左側：5 列目標代碼與即時比對狀態 -->
+                    <!-- 左側：5 列目標代碼 -->
                     <div>
                         <div style="font-size: 0.9rem; font-weight: 700; color: var(--neon-cyan); margin-bottom: 0.65rem;">
-                            目標二進位圖像代碼：
+                            每列 5 顆像素的二進位代碼：
                         </div>
-                        <div id="target-rows-list" class="target-rows-list"></div>
+                        <div id="bw-target-rows-list" class="target-rows-list"></div>
                     </div>
 
-                    <!-- 右側：5×5 互動畫布 -->
+                    <!-- 右側：5×5 黑白畫布 -->
                     <div>
-                        <div style="font-size: 0.9rem; font-weight: 700; color: var(--text-muted); text-align: center; margin-bottom: 0.65rem;">
-                            點擊方格切換 0 / 1：
+                        <div style="font-size: 0.85rem; font-weight: 700; color: var(--text-muted); text-align: center; margin-bottom: 0.55rem;">
+                            點擊方格切換 0 與 1：
                         </div>
-                        <div id="pixel-board" class="pixel-board"></div>
+                        <div id="bw-pixel-board" class="pixel-board bw-board"></div>
                     </div>
                 </div>
 
@@ -1174,8 +1421,117 @@
                 <div id="feedback-4-2" class="feedback-box"></div>
 
                 <div id="next-stage-4-wrap" style="display: none; text-align: center; margin-top: 1.25rem;">
+                    <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 0.75rem;">
+                        <button type="button" class="btn btn-amber" onclick="showCertificate()">
+                            🏆 領取基礎四關破關證書
+                        </button>
+                        <button type="button" class="btn btn-emerald" onclick="switchStage(5)">
+                            🚀 挑戰進階 01：彩色像素畫 →
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== 進階 01（Stage 5）：彩色像素畫 ==================== -->
+        <section id="section-stage-5" class="stage-section">
+            <div class="stage-header">
+                <div>
+                    <span class="stage-tag mono" style="color: var(--amber-gold);">ADVANCED 01 // 6x6 RGB ROCKET</span>
+                    <h2 class="stage-title">進階挑戰 01：彩色像素畫 (6×6 RGB 火箭)</h2>
+                    <p class="stage-desc">基礎關卡的黑白圖案只要 1 bit，但彩色圖片需要更多位元！這裡每個像素用 <strong>3 個 bits（紅R、綠G、藍B）</strong> 控制三原色開關，還原出一艘 <strong>6×6 彩色太空火箭 🚀</strong>！</p>
+                </div>
+                <button type="button" class="btn btn-outline" onclick="clearColorPixelGrid()">
+                    🧹 清空畫布
+                </button>
+            </div>
+
+            <div class="card highlight-amber">
+                <!-- RGB 3-Bit 色彩對照說明 -->
+                <div class="rgb-legend mono">
+                    <span style="color: var(--amber-gold); font-weight: 800; margin-right: 0.25rem;">3-Bit 色票表 [RGB]：</span>
+                    <span class="rgb-chip"><span class="rgb-dot" style="background:#182238;"></span>000 黑</span>
+                    <span class="rgb-chip"><span class="rgb-dot" style="background:#ef4444;"></span>100 紅</span>
+                    <span class="rgb-chip"><span class="rgb-dot" style="background:#22c55e;"></span>010 綠</span>
+                    <span class="rgb-chip"><span class="rgb-dot" style="background:#3b82f6;"></span>001 藍</span>
+                    <span class="rgb-chip"><span class="rgb-dot" style="background:#facc15;"></span>110 黃</span>
+                    <span class="rgb-chip"><span class="rgb-dot" style="background:#ffffff;"></span>111 白</span>
+                </div>
+
+                <div class="pixel-workspace">
+                    <!-- 左側：6 列目標 RGB 代碼 -->
+                    <div>
+                        <div style="font-size: 0.9rem; font-weight: 700; color: var(--amber-gold); margin-bottom: 0.65rem;">
+                            每列 6 顆像素的 3-Bit RGB 代碼：
+                        </div>
+                        <div id="color-target-rows-list" class="target-rows-list"></div>
+                    </div>
+
+                    <!-- 右側：調色盤 + 6×6 彩色畫布 -->
+                    <div>
+                        <div style="font-size: 0.85rem; font-weight: 700; color: var(--text-muted); text-align: center; margin-bottom: 0.45rem;">
+                            先選色票再點畫布（支援按住滑鼠拖曳連續塗色）：
+                        </div>
+                        <div id="palette-bar" class="palette-bar mono"></div>
+                        <div id="color-pixel-board" class="pixel-board"></div>
+                    </div>
+                </div>
+
+                <div id="feedback-5" class="feedback-box"></div>
+
+                <div id="next-stage-5-wrap" style="display: none; text-align: center; margin-top: 1.25rem;">
+                    <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 0.75rem;">
+                        <button type="button" class="btn btn-emerald" onclick="switchStage(6)">
+                            🚀 挑戰進階 02：太空聲波解碼 →
+                        </button>
+                        <button type="button" class="btn btn-amber" onclick="showCertificate()">
+                            🏆 前往登錄目前成績 →
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== 進階 02（Stage 6）：太空聲波解碼（視聽雙重版） ==================== -->
+        <section id="section-stage-6" class="stage-section">
+            <div class="stage-header">
+                <div>
+                    <span class="stage-tag mono" style="color: var(--amber-gold);">ADVANCED 02 // AUDIO WAVE SAMPLING</span>
+                    <h2 class="stage-title">進階挑戰 02：太空聲波解碼（視聽雙重版）</h2>
+                    <p class="stage-desc">電腦每隔一段時間測量聲波的<strong>振幅高度（取樣）</strong>並存成二進位數字（高度 0～7 分別對應音階 Do 到高音 Do）。請把 6 個取樣點的 <strong>3-Bit 二進位（位值：4、2、1）</strong> 換算成高度 <strong>0～7</strong>，還原聲波與旋律！</p>
+                </div>
+            </div>
+
+            <div class="card highlight-amber">
+                <div class="task-header">
+                    <div class="task-title" style="color: var(--amber-gold);">任務一：還原 6 個取樣點的聲波高度（0～7 級）</div>
+                    <span id="badge-6" class="task-badge">進行中</span>
+                </div>
+                <p style="color: var(--text-muted); font-size: 0.9rem;">
+                    💡 換算公式：3 個位元由左到右分別代表 <strong class="mono" style="color: var(--neon-cyan);">4、2、1</strong>（例如 <span class="mono" style="color: #fff;">101</span> = 4 + 0 + 1 = <strong>5 級</strong>）。調好後可點擊試聽按鈕比對旋律！（無喇叭教室亦可直接依高度數字破關）
+                </p>
+
+                <div class="wave-workspace">
+                    <div id="wave-grid" class="wave-grid"></div>
+                </div>
+
+                <div class="input-row">
+                    <button type="button" class="btn btn-outline" onclick="playTargetMelody()">
+                        🔊 聽目標旋律
+                    </button>
+                    <button type="button" class="btn btn-outline" onclick="playUserMelody()">
+                        🎹 試聽我的聲波
+                    </button>
+                    <button type="button" id="btn-check-6" class="btn btn-amber" onclick="checkStage6()">
+                        📊 驗證數位聲波與旋律
+                    </button>
+                </div>
+
+                <div id="feedback-6" class="feedback-box"></div>
+
+                <div id="next-stage-6-wrap" style="display: none; text-align: center; margin-top: 1.25rem;">
                     <button type="button" class="btn btn-amber" onclick="showCertificate()">
-                        🏆 領取二進位解謎破關證書 →
+                        🏆 領取挑戰證書並登錄成績 →
                     </button>
                 </div>
             </div>
@@ -1185,12 +1541,12 @@
         <section id="section-cert" class="stage-section">
             <div class="cert-card">
                 <div class="cert-medal">🏆</div>
-                <div class="mono" style="color: var(--neon-cyan); font-size: 0.85rem; letter-spacing: 0.15em;">
-                    MISSION ACCOMPLISHED // 4/4 STAGES CLEARED
+                <div id="cert-sub-banner" class="mono" style="color: var(--neon-cyan); font-size: 0.85rem; letter-spacing: 0.15em;">
+                    MISSION ACCOMPLISHED // BINARY CHALLENGE
                 </div>
-                <h2 class="cert-title">二進位解謎大師認證（4 關全破）</h2>
-                <p style="color: var(--text-muted); margin-top: 0.5rem;">
-                    恭喜成功破解「電燈位值密碼」、「外星字母電報」、「像素矩陣還原」與「太空艙硬碟救援」四大關卡！
+                <h2 id="cert-main-title" class="cert-title">二進位解謎大師認證</h2>
+                <p id="cert-desc-text" style="color: var(--text-muted); margin-top: 0.5rem;">
+                    恭喜完成二進位數位化挑戰！請填寫下方資料以登錄你的破關紀錄。
                 </p>
 
                 <div class="cert-name-box">
@@ -1216,9 +1572,8 @@
                 <div id="cert-display-name" class="cert-display-name">二進位特攻隊員</div>
 
                 <div class="cert-stats mono">
-                    <div>完成關卡：<strong>4 / 4 全破 🏅</strong></div>
-                    <div>通關時間：<strong id="cert-time">00:00</strong></div>
-                    <div>第一關密碼：<strong id="cert-t1">--</strong> / <strong id="cert-t2">--</strong></div>
+                    <div>完成進度：<strong id="cert-cleared-summary">--</strong></div>
+                    <div>挑戰時間：<strong id="cert-time">00:00</strong></div>
                 </div>
 
                 <div class="cert-actions">
@@ -1253,7 +1608,7 @@
             }
         };
 
-        // ==================== 1. Web Audio API 合成音效 (含安全防呆) ====================
+        // ==================== 1. Web Audio API 合成音效 (預設開啟，無喇叭亦可純視覺破關) ====================
         let soundEnabled = true;
         let audioCtx = null;
 
@@ -1325,13 +1680,41 @@
 
         // ==================== 2. 遊戲核心狀態 ====================
         const WEIGHTS = [16, 8, 4, 2, 1];
-        const PIXEL_TARGETS = [
+
+        // 第三關：5x5 黑白愛心目標代碼
+        const BW_PIXEL_TARGETS = [
             '01010',
             '11111',
             '11111',
             '01110',
             '00100'
         ];
+
+        // 進階 01：3-Bit RGB 色票定義
+        const RGB_COLORS = {
+            '000': { name: '黑', hex: '#182238' },
+            '100': { name: '紅', hex: '#ef4444' },
+            '010': { name: '綠', hex: '#22c55e' },
+            '001': { name: '藍', hex: '#3b82f6' },
+            '110': { name: '黃', hex: '#facc15' },
+            '111': { name: '白', hex: '#ffffff' }
+        };
+        const RGB_KEYS = ['000', '100', '111', '001', '110', '010'];
+
+        // 6x6 彩色太空火箭目標圖案（紅鼻錐、白機身、藍舷窗、紅尾翼、黃火焰）
+        const COLOR_PIXEL_TARGETS = [
+            ['000', '000', '100', '100', '000', '000'], // 紅色火箭尖端
+            ['000', '111', '111', '111', '111', '000'], // 白色機艙上段
+            ['000', '111', '001', '001', '111', '000'], // 藍色觀景舷窗
+            ['100', '111', '111', '111', '111', '100'], // 紅色側翼 + 機身
+            ['100', '000', '110', '110', '000', '100'], // 尾翼 + 黃色噴射火光
+            ['000', '000', '110', '110', '000', '000']  // 底部推進火焰
+        ];
+
+        // 進階 02：聲音取樣波形（每次隨機產生 6 個 1~7 的高度，對應 Do~High-Do 音階）
+        const NOTE_FREQS = [261.63, 293.66, 329.63, 349.23, 392.00, 440.00, 493.88, 523.25];
+        const NOTE_NAMES = ['Do', 'Re', 'Mi', 'Fa', 'Sol', 'La', 'Si', 'Do\''];
+        let waveTargets = [1, 4, 6, 3, 7, 2];
 
         const state = {
             currentStage: 1,
@@ -1347,14 +1730,20 @@
             stage3Done: false,
             task4_1Done: false,
             task4_2Done: false,
+            stage5Done: false, // 進階 01：彩色像素畫
+            stage6Done: false, // 進階 02：太空聲波解碼
+            selectedRgbCode: '100',
+            isPaintingColor: false,
             bulbs1_2: [0, 0, 0, 0, 0],
-            pixelGrid: [
+            bwGrid: [
                 [0, 0, 0, 0, 0],
                 [0, 0, 0, 0, 0],
                 [0, 0, 0, 0, 0],
                 [0, 0, 0, 0, 0],
                 [0, 0, 0, 0, 0]
             ],
+            colorGrid: Array.from({ length: 6 }, () => Array(6).fill('000')),
+            userWave: [0, 0, 0, 0, 0, 0],
             seconds: 0,
             timerId: null
         };
@@ -1381,7 +1770,8 @@
         function startTimer() {
             if (state.timerId) clearInterval(state.timerId);
             state.timerId = setInterval(() => {
-                if (!state.task4_2Done) {
+                const certActive = document.getElementById('section-cert')?.classList.contains('active');
+                if (!certActive) {
                     state.seconds++;
                     const el = document.getElementById('timer-display');
                     if (el) el.textContent = formatTime(state.seconds);
@@ -1389,13 +1779,24 @@
             }, 1000);
         }
 
+        function getClearedCount() {
+            let count = 0;
+            if (state.task1_2Done) count++;
+            if (state.stage2Done) count++;
+            if (state.stage3Done) count++;
+            if (state.task4_2Done) count++;
+            if (state.stage5Done) count++;
+            if (state.stage6Done) count++;
+            return count;
+        }
+
         function updateNavUI() {
             const progEl = document.getElementById('progress-display');
             if (progEl) {
-                progEl.textContent = `${state.currentStage} / 4`;
+                progEl.textContent = `${getClearedCount()} / 6 關`;
             }
 
-            for (let i = 1; i <= 4; i++) {
+            for (let i = 1; i <= 6; i++) {
                 const btn = document.getElementById(`nav-stage-${i}`);
                 const statusEl = document.getElementById(`nav-status-${i}`);
                 if (!btn || !statusEl) continue;
@@ -1404,16 +1805,19 @@
                 const isDone = (i === 1 && state.task1_2Done) ||
                                (i === 2 && state.stage2Done) ||
                                (i === 3 && state.stage3Done) ||
-                               (i === 4 && state.task4_2Done);
+                               (i === 4 && state.task4_2Done) ||
+                               (i === 5 && state.stage5Done) ||
+                               (i === 6 && state.stage6Done);
 
-                if (i > state.unlockedStage) {
+                // 第 1~4 關為基礎關卡（需依序解鎖）；第 5~6 關為進階挑戰區（隨時自由點擊）
+                if (i <= 4 && i > state.unlockedStage) {
                     btn.classList.add('locked');
                     statusEl.textContent = '🔒 未解鎖';
                 } else if (isDone) {
                     btn.classList.add('completed');
                     statusEl.textContent = '✅ 已破關';
                 } else {
-                    statusEl.textContent = '進行中';
+                    statusEl.textContent = i >= 5 ? '⚡ 自由挑戰' : '進行中';
                 }
 
                 if (state.currentStage === i) {
@@ -1423,9 +1827,9 @@
         }
 
         function switchStage(stageNum) {
-            if (stageNum > state.unlockedStage) {
+            if (stageNum <= 4 && stageNum > state.unlockedStage) {
                 playErrorSound();
-                showToast(`🔒 請先完成第 ${state.unlockedStage} 關才能解鎖下一關！`, 'error');
+                showToast('🔒 基礎關卡需依序解鎖喔！若想直接玩進階題，請點下方「進階挑戰區」。', 'error');
                 return;
             }
             playClickSound(true);
@@ -1437,6 +1841,185 @@
 
             updateNavUI();
             window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // ==================== 6. 第三關（基礎）：消失的黑白像素畫 ====================
+        function renderStage3() {
+            const rowsList = document.getElementById('bw-target-rows-list');
+            const board = document.getElementById('bw-pixel-board');
+            if (!rowsList || !board) return;
+
+            rowsList.innerHTML = '';
+            board.innerHTML = '';
+
+            let allMatched = true;
+
+            for (let r = 0; r < 5; r++) {
+                const currentRowStr = state.bwGrid[r].join('');
+                const targetRowStr = BW_PIXEL_TARGETS[r];
+                const isMatch = currentRowStr === targetRowStr;
+                if (!isMatch) allMatched = false;
+
+                const rowItem = document.createElement('div');
+                rowItem.className = `target-row-item ${isMatch ? 'matched' : ''}`;
+                rowItem.innerHTML = `
+                    <span style="color: var(--text-muted); font-weight: 700;">第 ${r + 1} 列</span>
+                    <span class="row-code mono" style="letter-spacing: 0.16em;">${targetRowStr}</span>
+                    <span class="row-status ${isMatch ? 'ok' : ''}">${isMatch ? '符合 ✓' : '未符合'}</span>
+                `;
+                rowsList.appendChild(rowItem);
+
+                for (let c = 0; c < 5; c++) {
+                    const val = state.bwGrid[r][c];
+                    const cell = document.createElement('button');
+                    cell.type = 'button';
+                    cell.className = `pixel-cell mono ${val === 1 ? 'bw-on' : 'bw-off'}`;
+                    cell.textContent = val;
+                    cell.setAttribute('aria-label', `第${r + 1}列第${c + 1}格，目前為${val}`);
+                    cell.onclick = () => {
+                        state.bwGrid[r][c] = val === 1 ? 0 : 1;
+                        playClickSound(state.bwGrid[r][c] === 1);
+                        renderStage3();
+                    };
+                    board.appendChild(cell);
+                }
+            }
+
+            if (allMatched && !state.stage3Done) {
+                state.stage3Done = true;
+                state.unlockedStage = Math.max(state.unlockedStage, 4);
+                playSuccessSound();
+                updateNavUI();
+
+                const fb = document.getElementById('feedback-3');
+                if (fb) {
+                    fb.innerHTML = '💖 <strong>黑白圖像還原成功！</strong> 你用 25 個位元（Bits）還原出了一顆愛心！第四關「太空艙硬碟救援」已解鎖！';
+                    fb.classList.add('show');
+                }
+
+                const nextWrap = document.getElementById('next-stage-3-wrap');
+                if (nextWrap) nextWrap.style.display = 'block';
+
+                showToast('🎉 第三關黑白像素畫完成！第四關已解鎖！', 'success');
+            }
+        }
+
+        function clearBwPixelGrid() {
+            playClickSound(false);
+            state.bwGrid = [
+                [0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0]
+            ];
+            renderStage3();
+            showToast('🧹 已清空 5×5 黑白畫布！', 'info');
+        }
+
+        // ==================== 進階 01（Stage 5）：彩色像素畫 ====================
+        function renderPaletteBar() {
+            const bar = document.getElementById('palette-bar');
+            if (!bar) return;
+            bar.innerHTML = '';
+
+            RGB_KEYS.forEach(code => {
+                const info = RGB_COLORS[code];
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = `palette-btn ${state.selectedRgbCode === code ? 'selected' : ''}`;
+                btn.innerHTML = `<span class="rgb-dot" style="background:${info.hex};"></span>${code} ${info.name}`;
+                btn.onclick = () => {
+                    state.selectedRgbCode = code;
+                    playClickSound(true);
+                    renderPaletteBar();
+                };
+                bar.appendChild(btn);
+            });
+        }
+
+        function renderStage5() {
+            renderPaletteBar();
+            const rowsList = document.getElementById('color-target-rows-list');
+            const board = document.getElementById('color-pixel-board');
+            if (!rowsList || !board) return;
+
+            rowsList.innerHTML = '';
+            board.innerHTML = '';
+
+            let allMatched = true;
+
+            for (let r = 0; r < 6; r++) {
+                const currentRowArr = state.colorGrid[r];
+                const targetRowArr = COLOR_PIXEL_TARGETS[r];
+                const isMatch = currentRowArr.every((val, idx) => val === targetRowArr[idx]);
+                if (!isMatch) allMatched = false;
+
+                // 左側列狀態
+                const rowItem = document.createElement('div');
+                rowItem.className = `target-row-item ${isMatch ? 'matched' : ''}`;
+                rowItem.innerHTML = `
+                    <span style="color: var(--text-muted); font-weight: 700; white-space: nowrap;">第${r + 1}列</span>
+                    <span class="row-code mono" style="font-size: 0.85rem; letter-spacing: 0.03em;">${targetRowArr.join(' ')}</span>
+                    <span class="row-status ${isMatch ? 'ok' : ''}">${isMatch ? '符合 ✓' : '未符合'}</span>
+                `;
+                rowsList.appendChild(rowItem);
+
+                // 右側 6×6 彩色像素格子（支援點擊與拖曳連續塗色）
+                for (let c = 0; c < 6; c++) {
+                    const code = state.colorGrid[r][c];
+                    const info = RGB_COLORS[code] || RGB_COLORS['000'];
+                    const cell = document.createElement('button');
+                    cell.type = 'button';
+                    cell.className = 'pixel-cell mono';
+                    cell.style.backgroundColor = info.hex;
+                    cell.style.color = (code === '111' || code === '110') ? '#1e293b' : '#ffffff';
+                    cell.style.textShadow = (code === '111' || code === '110') ? 'none' : '0 1px 3px rgba(0,0,0,0.85)';
+                    cell.textContent = code;
+                    cell.setAttribute('aria-label', `第${r + 1}列第${c + 1}格，目前為${code}`);
+
+                    const paintCell = () => {
+                        state.colorGrid[r][c] = state.selectedRgbCode;
+                        playClickSound(true);
+                        renderStage5();
+                    };
+
+                    cell.onmousedown = () => {
+                        state.isPaintingColor = true;
+                        paintCell();
+                    };
+                    cell.onmouseenter = () => {
+                        if (state.isPaintingColor && state.colorGrid[r][c] !== state.selectedRgbCode) {
+                            paintCell();
+                        }
+                    };
+                    board.appendChild(cell);
+                }
+            }
+
+            if (allMatched && !state.stage5Done) {
+                state.stage5Done = true;
+                playSuccessSound();
+                updateNavUI();
+
+                const fb = document.getElementById('feedback-5');
+                if (fb) {
+                    fb.innerHTML = '🚀 <strong>彩色太空火箭還原成功！</strong> 你用 36 顆 3-Bit RGB 像素（共 108 bits）拼出了一艘超帥的太空火箭！';
+                    fb.classList.add('show');
+                }
+
+                const nextWrap = document.getElementById('next-stage-5-wrap');
+                if (nextWrap) nextWrap.style.display = 'block';
+
+                showToast('🎉 進階 01「6×6 彩色太空火箭」破關成功！', 'success');
+            }
+        }
+
+        function clearColorPixelGrid() {
+            playClickSound(false);
+            state.colorGrid = Array.from({ length: 6 }, () => Array(6).fill('000'));
+            renderStage5();
+            showToast('🧹 已清空 6×6 彩色畫布！', 'info');
         }
 
         // ==================== 4. 第一關：密室電燈密碼 ====================
@@ -1475,6 +2058,9 @@
             const t42El = document.getElementById('target-4-2-mb');
             if (t41El) t41El.textContent = state.targetBytes;
             if (t42El) t42El.textContent = state.targetPhotoMB;
+
+            // 進階 02 隨機產生 6 個 1~7 的聲波取樣高度（避免全 0）
+            waveTargets = Array.from({ length: 6 }, () => Math.floor(Math.random() * 7) + 1);
         }
 
         function toggleWeights() {
@@ -1744,82 +2330,6 @@
             }
         }
 
-        // ==================== 6. 第三關：消失的像素畫 ====================
-        function renderStage3() {
-            const rowsList = document.getElementById('target-rows-list');
-            const board = document.getElementById('pixel-board');
-            if (!rowsList || !board) return;
-
-            rowsList.innerHTML = '';
-            board.innerHTML = '';
-
-            let allMatched = true;
-
-            for (let r = 0; r < 5; r++) {
-                const currentRowStr = state.pixelGrid[r].join('');
-                const targetRowStr = PIXEL_TARGETS[r];
-                const isMatch = currentRowStr === targetRowStr;
-                if (!isMatch) allMatched = false;
-
-                // 左側列狀態
-                const rowItem = document.createElement('div');
-                rowItem.className = `target-row-item ${isMatch ? 'matched' : ''}`;
-                rowItem.innerHTML = `
-                    <span style="color: var(--text-muted); font-weight: 700;">第 ${r + 1} 列</span>
-                    <span class="row-code mono">${targetRowStr}</span>
-                    <span class="row-status ${isMatch ? 'ok' : ''}">${isMatch ? '符合 ✓' : '未符合'}</span>
-                `;
-                rowsList.appendChild(rowItem);
-
-                // 右側 5 顆像素格子
-                for (let c = 0; c < 5; c++) {
-                    const val = state.pixelGrid[r][c];
-                    const cell = document.createElement('button');
-                    cell.type = 'button';
-                    cell.className = `pixel-cell mono ${val === 1 ? 'active' : ''}`;
-                    cell.textContent = val;
-                    cell.setAttribute('aria-label', `第${r + 1}列第${c + 1}格，目前為${val}`);
-                    cell.onclick = () => {
-                        state.pixelGrid[r][c] = val === 1 ? 0 : 1;
-                        playClickSound(val === 0);
-                        renderStage3();
-                    };
-                    board.appendChild(cell);
-                }
-            }
-
-            if (allMatched && !state.stage3Done) {
-                state.stage3Done = true;
-                state.unlockedStage = Math.max(state.unlockedStage, 4);
-                playSuccessSound();
-                updateNavUI();
-
-                const fb = document.getElementById('feedback-3');
-                if (fb) {
-                    fb.innerHTML = '💖 <strong>圖像還原成功！</strong> 你用 25 個位元 (Bits) 拼出了一顆愛心像素圖！';
-                    fb.classList.add('show');
-                }
-
-                const nextWrap = document.getElementById('next-stage-3-wrap');
-                if (nextWrap) nextWrap.style.display = 'block';
-
-                showToast('🎉 第三關完成！第四關「太空艙硬碟救援」已解鎖！', 'success');
-            }
-        }
-
-        function clearPixelGrid() {
-            playClickSound(false);
-            state.pixelGrid = [
-                [0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0]
-            ];
-            renderStage3();
-            showToast('🧹 已清空 5×5 像素畫布！', 'info');
-        }
-
         // ==================== 7. 第四關：太空艙硬碟救援 ====================
         function checkTask4_1() {
             const input = document.getElementById('input-4-1');
@@ -1879,7 +2389,7 @@
 
                 const fb = document.getElementById('feedback-4-2');
                 if (fb) {
-                    fb.innerHTML = `🎉 <strong>計算完全正確！</strong> <span class="mono">1024 MB ÷ ${state.targetPhotoMB} MB = ${expected} 張照片</span>`;
+                    fb.innerHTML = `🎉 <strong>基礎四關全數破關！</strong> <span class="mono">1024 MB ÷ ${state.targetPhotoMB} MB = ${expected} 張照片</span>`;
                     fb.classList.add('show');
                 }
 
@@ -1888,7 +2398,6 @@
                     badge2.textContent = '✅ 已完成';
                     badge2.classList.add('done');
                 }
-
                 input.disabled = true;
                 const btn2 = document.getElementById('btn-check-4-2');
                 if (btn2) btn2.disabled = true;
@@ -1897,28 +2406,142 @@
                 if (nextWrap) nextWrap.style.display = 'block';
 
                 updateNavUI();
-                showToast('🏆 恭喜全數破關！快去領取破關證書並傳送成績吧！', 'success');
+                showToast('🏆 基礎四關全數破關！可領取證書或繼續挑戰進階關卡！', 'success');
             } else {
                 playErrorSound();
                 input.classList.add('shake');
                 setTimeout(() => input.classList.remove('shake'), 420);
-                showToast(`❌ 張數不對喔！提示：1 GB = 1024 MB，把 1024 除以 ${state.targetPhotoMB} 試試看。`, 'error');
+                showToast(`❌ 算錯囉！提示：1 GB = 1024 MB，計算 1024 ÷ ${state.targetPhotoMB} 試試看。`, 'error');
+            }
+        }
+
+        // ==================== 進階 02（Stage 6）：太空聲波解碼（視聽雙重版） ====================
+        function renderStage6() {
+            const grid = document.getElementById('wave-grid');
+            if (!grid) return;
+            grid.innerHTML = '';
+
+            waveTargets.forEach((targetVal, idx) => {
+                const binStr = targetVal.toString(2).padStart(3, '0');
+                const curVal = state.userWave[idx];
+                const heightPct = Math.round(((curVal + 1) / 8) * 100);
+
+                const col = document.createElement('div');
+                col.className = 'wave-col';
+                col.innerHTML = `
+                    <div style="font-size:0.75rem; color:var(--text-muted);">取樣 #${idx + 1}</div>
+                    <div class="signal-bits mono" style="font-size:1rem; padding:0.2rem 0.5rem;">${binStr}</div>
+                    <div class="wave-bar-track" title="點擊調整聲波高度" onclick="adjustWaveSample(${idx}, 1, true)">
+                        <div class="wave-bar-fill" style="height:${heightPct}%;"></div>
+                    </div>
+                    <div class="mono" style="font-size:0.84rem; font-weight:800; color:var(--amber-gold);">高度 ${curVal} (${NOTE_NAMES[curVal]})</div>
+                    <div class="wave-step-btns">
+                        <button type="button" class="wave-mini-btn" onclick="adjustWaveSample(${idx}, -1)">－</button>
+                        <button type="button" class="wave-mini-btn" onclick="adjustWaveSample(${idx}, 1)">＋</button>
+                    </div>
+                `;
+                grid.appendChild(col);
+            });
+        }
+
+        function adjustWaveSample(idx, delta, wrapAround = false) {
+            if (state.stage6Done) return;
+            let next = state.userWave[idx] + delta;
+            if (wrapAround && next > 7) next = 0;
+            next = Math.max(0, Math.min(7, next));
+            state.userWave[idx] = next;
+            playTone(NOTE_FREQS[next], 0.16, 'triangle', 0);
+            renderStage6();
+        }
+
+        function playSequence(arr, label) {
+            if (!soundEnabled) {
+                showToast('🔇 目前為靜音模式，請點右上角「音效：開」來聽旋律（無喇叭亦可直接看高度破關）！', 'info');
+                return;
+            }
+            arr.forEach((level, idx) => {
+                playTone(NOTE_FREQS[level], 0.24, 'triangle', idx * 0.28);
+            });
+            showToast(label, 'info');
+        }
+
+        function playTargetMelody() {
+            playSequence(waveTargets, '🔊 正在播放太空目標旋律...');
+        }
+
+        function playUserMelody() {
+            playSequence(state.userWave, '🎹 正在試聽你目前設定的聲波旋律...');
+        }
+
+        function checkStage6() {
+            const isCorrect = waveTargets.every((val, idx) => val === state.userWave[idx]);
+
+            if (isCorrect) {
+                playSuccessSound();
+                state.stage6Done = true;
+                const fb = document.getElementById('feedback-6');
+                if (fb) {
+                    fb.innerHTML = `📈 <strong>數位聲波與旋律還原成功！</strong> 6 個取樣點高度 <span class="mono">[${waveTargets.join(', ')}]</span> 完全正確！電腦就是靠記錄這些數字把聲音存進硬碟裡的。`;
+                    fb.classList.add('show');
+                }
+                const badge = document.getElementById('badge-6');
+                if (badge) {
+                    badge.textContent = '✅ 已破關';
+                    badge.classList.add('done');
+                }
+                const btn = document.getElementById('btn-check-6');
+                if (btn) btn.disabled = true;
+
+                const nextWrap = document.getElementById('next-stage-6-wrap');
+                if (nextWrap) nextWrap.style.display = 'block';
+
+                updateNavUI();
+                showToast('🏆 進階 02「太空聲波解碼」破關成功！快去領取證書並登錄成績吧！', 'success');
+            } else {
+                playErrorSound();
+                const grid = document.getElementById('wave-grid');
+                if (grid) {
+                    grid.classList.add('shake');
+                    setTimeout(() => grid.classList.remove('shake'), 420);
+                }
+                showToast('❌ 波形高度還不對喔！提示：3 位元的位值由左到右是「4、2、1」，例如 110 = 4 + 2 = 6。', 'error');
             }
         }
 
         // ==================== 8. 破關證書、Google 表單送出與重置 ====================
+        function getClearedSummaryText() {
+            const labels = [];
+            if (state.task1_2Done) labels.push('基1');
+            if (state.stage2Done) labels.push('基2');
+            if (state.stage3Done) labels.push('基3');
+            if (state.task4_2Done) labels.push('基4');
+            if (state.stage5Done) labels.push('進1(彩圖)');
+            if (state.stage6Done) labels.push('進2(聲波)');
+            const total = labels.length;
+            if (total === 6) return '6 / 6 全破 🏅';
+            return `${total} / 6 關 (${labels.join('、') || '無'})`;
+        }
+
         function showCertificate() {
             playWinSound();
             document.querySelectorAll('.stage-section').forEach(sec => sec.classList.remove('active'));
             const certSec = document.getElementById('section-cert');
             if (certSec) certSec.classList.add('active');
 
+            const clearedCount = getClearedCount();
+            const titleEl = document.getElementById('cert-main-title');
+            const subEl = document.getElementById('cert-sub-banner');
+            if (titleEl) {
+                titleEl.textContent = clearedCount === 6 ? '二進位解謎大師認證（6 關全破）' : '二進位數位化挑戰證書';
+            }
+            if (subEl) {
+                subEl.textContent = `MISSION ACCOMPLISHED // ${clearedCount}/6 STAGES CLEARED`;
+            }
+
             const timeEl = document.getElementById('cert-time');
-            const t1El = document.getElementById('cert-t1');
-            const t2El = document.getElementById('cert-t2');
+            const summaryEl = document.getElementById('cert-cleared-summary');
             if (timeEl) timeEl.textContent = formatTime(state.seconds);
-            if (t1El) t1El.textContent = state.target1;
-            if (t2El) t2El.textContent = state.target2;
+            if (summaryEl) summaryEl.textContent = getClearedSummaryText();
 
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
@@ -1964,7 +2587,7 @@
             formData.append(GOOGLE_FORM_CONFIG.fields.className, cls);
             formData.append(GOOGLE_FORM_CONFIG.fields.seatNumber, seat);
             formData.append(GOOGLE_FORM_CONFIG.fields.studentName, name);
-            formData.append(GOOGLE_FORM_CONFIG.fields.progress, '4 / 4 全破');
+            formData.append(GOOGLE_FORM_CONFIG.fields.progress, getClearedSummaryText());
             formData.append(GOOGLE_FORM_CONFIG.fields.clearTime, formatTime(state.seconds));
 
             // 使用 no-cors 模式背景靜默送出至 Google 表單
@@ -2007,14 +2630,20 @@
             state.stage3Done = false;
             state.task4_1Done = false;
             state.task4_2Done = false;
+            state.stage5Done = false;
+            state.stage6Done = false;
+            state.selectedRgbCode = '100';
+            state.isPaintingColor = false;
             state.bulbs1_2 = [0, 0, 0, 0, 0];
-            state.pixelGrid = [
+            state.bwGrid = [
                 [0, 0, 0, 0, 0],
                 [0, 0, 0, 0, 0],
                 [0, 0, 0, 0, 0],
                 [0, 0, 0, 0, 0],
                 [0, 0, 0, 0, 0]
             ];
+            state.colorGrid = Array.from({ length: 6 }, () => Array(6).fill('000'));
+            state.userWave = [0, 0, 0, 0, 0, 0];
             state.seconds = 0;
 
             const timerEl = document.getElementById('timer-display');
@@ -2135,9 +2764,30 @@
             const next4 = document.getElementById('next-stage-4-wrap');
             if (next4) next4.style.display = 'none';
 
+            // 重置第五關（進階 01）UI
+            const fb5 = document.getElementById('feedback-5');
+            if (fb5) fb5.classList.remove('show');
+            const next5 = document.getElementById('next-stage-5-wrap');
+            if (next5) next5.style.display = 'none';
+
+            // 重置第六關（進階 02）UI
+            const badge6 = document.getElementById('badge-6');
+            if (badge6) {
+                badge6.textContent = '進行中';
+                badge6.classList.remove('done');
+            }
+            const btn6 = document.getElementById('btn-check-6');
+            if (btn6) btn6.disabled = false;
+            const fb6 = document.getElementById('feedback-6');
+            if (fb6) fb6.classList.remove('show');
+            const next6 = document.getElementById('next-stage-6-wrap');
+            if (next6) next6.style.display = 'none';
+
             renderBulbs1_1();
             renderBulbs1_2();
             renderStage3();
+            renderStage5();
+            renderStage6();
             switchStage(1);
             showToast('🔄 已重新抽出新題目，挑戰開始！', 'info');
         }
@@ -2150,6 +2800,8 @@
             initCipherTable();
             initAlienInputs();
             renderStage3();
+            renderStage5();
+            renderStage6();
             updateNavUI();
             startTimer();
 
@@ -2184,6 +2836,10 @@
                     if (e.key === 'Enter') checkTask4_2();
                 });
             }
+
+            window.addEventListener('mouseup', () => {
+                state.isPaintingColor = false;
+            });
         }
 
         if (document.readyState === 'loading') {
